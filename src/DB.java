@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 public class DB {
 
-    static final String user = "admin",password = "Password1";
+    static final String user = "root",password = "fixmixboom4";
     static final String url = "jdbc:mysql://localhost:3306/";
     static final String dbName = "wdm";
     static final String createTablePersons = "CREATE TABLE PERSONS " +
