@@ -6,7 +6,7 @@ public class TextParser {
     DataInputStream in;
     BufferedReader br;
 
-    public void initParser(String fileName){
+    public TextParser(String fileName){
         try{
             fstream = new FileInputStream(fileName);
         } catch (FileNotFoundException e){
@@ -17,28 +17,25 @@ public class TextParser {
         br = new BufferedReader(new InputStreamReader(in));
     }
 
-    public void parseText(){
+    public String parseText(){
         String line="", value="";
-        //Read File Line By Line
+        //Read File Line By Line and concat values (paragraphs) between empty lines
         try{
             while ((line = br.readLine()) != null)
             {
-                while(!line.equals('\n')&&!line.equals("\r\n")){
-                    value.concat(line);
+                while(!(line.equals(""))){
+                    value = value.concat(line);
                     line = br.readLine();
                 }
-               runHeuristics(value);
+               return value;
+               //runHeuristics(value);
             }
         } catch (IOException e){
-            main.lgr.log(Level.WARNING, "Could not read text line");
+           // main.lgr.log(Level.WARNING, "Could not read text line");
         }
+        return "bla";
     }
 
-    void runHeuristics(String str){
-       for (heuristic h in
-
-
-    }
 
 
 }

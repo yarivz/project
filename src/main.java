@@ -1,7 +1,8 @@
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
-
+import java.util.regex.Pattern;
+/*
 public class main {
 
     public static Logger lgr = Logger.getLogger("wdm.Logger");
@@ -18,10 +19,16 @@ public class main {
         if(ret) System.out.println("The DB and tables were created");
         else  System.out.println("something went wrong, please check the log");
 
-        createRelation
 
 
     }
 
+    public void test(){
 
+        String YEAR_PATTERN =  "[0-9]{3,}?";
+        Pattern bornInYearFULL = Pattern.compile("(born[^\\.]+?\\[\\["+YEAR_PATTERN+"\\]\\])|(\\[\\["+YEAR_PATTERN+"\\]\\]\\s-)|(\\(born "+YEAR_PATTERN+"\\))");
+        System.out.println(bornInYearFULL.matcher("").groupCount());
+    }
 }
+
+*/

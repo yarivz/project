@@ -50,7 +50,7 @@ public class DB {
             }
 
         } catch (SQLException ex) {
-            main.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+            test.lgr.log(Level.SEVERE, ex.getMessage(), ex);
             ans=false;
         }
         if (ans){
@@ -62,11 +62,11 @@ public class DB {
                         ||st2.executeUpdate(createTableMusicians)!=0
                         ||st2.executeUpdate(createTableCountries)!=0)
                 {
-                    main.lgr.log(Level.SEVERE,"Could not create some of the tables");
+                    test.lgr.log(Level.SEVERE,"Could not create some of the tables");
                     ans=false;
                 }
             } catch (SQLException ex) {
-                main.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+                test.lgr.log(Level.SEVERE, ex.getMessage(), ex);
                 ans=false;
             }
         }
@@ -84,7 +84,7 @@ public class DB {
                 con.close();
             }
         } catch (SQLException ex) {
-                main.lgr.log(Level.WARNING, ex.getMessage(), ex);
+                test.lgr.log(Level.WARNING, ex.getMessage(), ex);
         }
     return ans;
     }
