@@ -57,7 +57,19 @@ public class queryScanner{
             	}
             	
             	switch(scase){
-            	case "":
+            	case "when were":
+            		break;
+            	case "which people":
+            		break;
+            	case "when did":
+            		break;
+            	case "who is":
+            		break;
+            	case "countries":
+            		break;
+            	case "decay":
+            		break;
+            	case "country":
             		break;
             	default:
             		 throw new IllegalArgumentException();
