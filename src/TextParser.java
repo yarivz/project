@@ -6,13 +6,16 @@ import java.util.regex.Pattern;
 
 public class TextParser {
     String[] args;
+    BufferedReader br;
     Vector<Person> personVec;
     Vector<musicalArtist> artistVec;
+    Vector<country> countryVec;
 
     public TextParser(String[] args){
         this.args = args;
         personVec = new Vector<Person>();
         artistVec = new Vector<musicalArtist>();
+        countryVec = new Vector<country>();
     }
     
     public void run() throws IOException{
@@ -25,9 +28,9 @@ public class TextParser {
             return;
         }
     	DataInputStream in = new DataInputStream(fstream);
-    	BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    	br = new BufferedReader(new InputStreamReader(in));
     	
-    	parseFull(br);
+    	parseFull();
     	in.close();
     	
     	//try to open and parse args[1] which is pos.txt
@@ -40,15 +43,14 @@ public class TextParser {
     	in = new DataInputStream(fstream);
     	br = new BufferedReader(new InputStreamReader(in));
     	
-    	parsePos(br);
+    	parsePos();
     	in.close();
     }
     
-    public void parseFull(BufferedReader br) throws IOException{
+    public void parseFull() throws IOException{
     	String line = "";
 		//Read File Line By Line
-   
-		while ((line = br.readLine()) != null) 
+    	while ((line = br.readLine()) != null) 
 		{
 			String value = "";
 			while(!(line.equals(""))){
@@ -56,58 +58,106 @@ public class TextParser {
                 line = br.readLine();
             }
 			
-			if(value.contains("{{Infobox musical artist"))
-			{
-				musicalArtist artist = new musicalArtist();
-				int j = value.indexOf('(');
-				int k = value.indexOf('\n');
-				if(j!=-1 && j<k)
-					artist.name = value.substring(0,j-1);
-				else
-					artist.name = value.substring(0,k);
-				
-				Pattern background = Pattern.compile("Background.+?\\\n");
-				Matcher mBackground = background.matcher(value);
-				Pattern genre = Pattern.compile("Genre.+?\\]");
-				Matcher mGenre = genre.matcher(value);
-				Pattern nation = Pattern.compile(".*?( is| was| were).*?\\[\\[[A-Z].*?\\|[A-Z][^\\s]*?\\]\\]");
-				Matcher mNation = nation.matcher(value);
-				
-				if(mBackground.find())
-				{
-					if(mBackground.group(0).contains("singer"))
-					{
-						artist.type = "singer";
-						if(mNation.find())
-						{
-							//System.out.println(mNation.group(0));
-							artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
-						}
-					}
-					else
-					{
-						artist.type = "band";
-						if(mNation.find())
-						{
-							//System.out.println(mNation.group(0));
-							artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
-						}
-					}
-				}
-				
-				if(mGenre.find())
-				{
-					//System.out.println(mGenre.group(0));
-					int i = mGenre.group(0).indexOf('|');
-					if(i!=-1)
-						artist.genre = mGenre.group(0).substring(i+1, mGenre.group(0).length()-1);
-					else
-						artist.genre = mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1);
-				}
+			
+			extractFullArtist(value);
+			//extractFullPerson(value);
+			extractFullCountry(value);
+		}
+    }
+    
+    public void parsePos() throws IOException{
+    	String value;
+    	  //Read File Line By Line
+    	 while ((value = br.readLine()) != null)
+     	  {
+     		  if(value.equals(""))
+     			  break;
+     		  String data = "";
+     		  String temp;
+     		  boolean gap=false;
+     		  while(!gap)
+     		  {
+     			  temp = br.readLine();
+     			  if(!temp.equals(""))
+     				  data = data+temp;
+     			  else
+     				  gap = true;
+     		  }
+     		  if(value.contains("+"))
+     			  continue;
+     		  
+     		  
+     		 extractPosArtist(value,data);
+     		 //extractPosPerson(value,data);
+     		 extractPosCountry(value,data);
+     	  }
+    }
+    
+    public void extractFullArtist(String value) throws IOException
+    {
+    	int counter = 1;
 
-				artistVec.add(artist);
-			 }
-		  }
+		if(value.contains("{{Infobox musical artist"))
+		{
+			musicalArtist artist = new musicalArtist();
+			int j = value.indexOf('(');
+			int k = value.indexOf('\n');
+			if(j!=-1 && j<k)
+				artist.name = value.substring(0,j-1);
+			else
+				artist.name = value.substring(0,k);
+			//System.out.print(counter+". "+artist.name+" ");
+			counter++;
+			
+			Pattern background = Pattern.compile("Background.+?\\\n");
+			Matcher mBackground = background.matcher(value);
+			Pattern genre = Pattern.compile("Genre.+?\\]");
+			Matcher mGenre = genre.matcher(value);
+			Pattern nation = Pattern.compile(".*?( is| was| were).*?\\[\\[[A-Z].*?\\|[A-Z][^\\s]*?\\]\\]");
+			Matcher mNation = nation.matcher(value);
+			
+			if(mBackground.find())
+			{
+				if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
+				{
+					artist.type = "singer";
+					//System.out.print(artist.type+" ");
+					if(mNation.find())
+					{
+						artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
+						//System.out.print(artist.nationality+" ");
+					}
+				}
+				else if(mBackground.group(0).contains("band") || mBackground.group(0).contains("Band"))
+				{
+					artist.type = "band";
+					//System.out.print(artist.type+" ");
+					if(mNation.find())
+					{
+						artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
+						//System.out.print(artist.nationality+" ");
+					}
+				}
+			}
+			
+			if(mGenre.find())
+			{
+				int i = mGenre.group(0).indexOf('|');
+				if(i!=-1)
+				{
+					artist.genre = mGenre.group(0).substring(i+1, mGenre.group(0).length()-1).toLowerCase();
+				}
+				else
+				{
+					artist.genre = mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase();
+				}
+				//System.out.println(artist.genre);
+			}
+			else
+				//System.out.println("");
+
+			artistVec.add(artist);
+		 }
 		  
 		 /*while ((strLine = br.readLine()) != null)
 		 {
@@ -128,107 +178,127 @@ public class TextParser {
 					vec2.add(artist);
 				}
 			} 
-		 }*/
-		 
+		 }*/	 
+	}
+    
+    public void extractPosArtist(String value, String data) throws IOException
+    {
+  	  int i=1;
+  	  int a=1;
+  	 
+	  String altValue = value;
+	  while(altValue.indexOf(" ")!=-1)
+	  {
+		  int index = altValue.indexOf(" ");
+		  altValue = altValue.substring(0, index)+"[^\\.]+?"+altValue.substring(index+1);
+	  }
+	 
+	  musicalArtist art = new musicalArtist();
+	  String strSinger = altValue+"[^\\.]+?"+"(is/VBZ|was/VBD)[^\\.]+?(singer/NN|musician/NN)";
+	  Pattern singer = Pattern.compile(strSinger);
+	  Matcher mSinger = singer.matcher(data);
+	  if (mSinger.find()) 
+	  {
+		art.name = value;
+		art.type = "singer";
+		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
+		Matcher mNation = nation.matcher(mSinger.group(0));
+		if(mNation.find())
+		{
+			art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
+			//System.out.println(a+". "+mNation.group(0));
+			//a++;
+		}
+		
+		Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (singer/NN|musician/NN)");
+		Matcher mGenre = genre.matcher(mSinger.group(0));
+		if(mGenre.find())
+		{
+			int index = mGenre.group(0).lastIndexOf(' ');
+			String gen = mGenre.group(0).substring(1,index).toLowerCase();
+			
+			index = gen.indexOf('\\');
+			if(index!=-1)
+				gen = gen.substring(index+1);
+			
+			for(int j=0;j<gen.length();j++)
+			{
+				if(gen.charAt(j)=='/')
+					gen = gen.substring(0,j) + gen.substring(j+3);
+			}
+			art.genre = gen;
+			//System.out.println(a+". "+art.genre);
+			//a++;
+		}
+		
+	  	//System.out.println(i+". "+value);
+	    //System.out.println(mSinger.group(0));
+	  	//i++;
+	  }
+	  
+	  String strBand = altValue+"[^\\.]+?"+"(is/VBZ|were/VBD|was/VBD)[^\\.]+?( band/NN)";
+	  Pattern band = Pattern.compile(strBand);
+	  Matcher mBand = band.matcher(data);
+	  if (mBand.find()) 
+	  {
+		art.name = value;
+		art.type = "band";
+		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
+		Matcher mNation = nation.matcher(mBand.group(0));
+		if(mNation.find())
+		{
+			art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
+			//System.out.println(a+". "+mNation.group(0));
+			//a++;
+		}
+		
+		Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (band/NN)");
+		Matcher mGenre = genre.matcher(mBand.group(0));
+		if(mGenre.find())
+		{
+			int index = mGenre.group(0).lastIndexOf(' ');
+			String gen = mGenre.group(0).substring(1,index).toLowerCase();
+			
+			index = gen.indexOf('\\');
+			if(index!=-1)
+				gen = gen.substring(index+2);
+			
+			for(int j=0;j<gen.length();j++)
+			{
+				if(gen.charAt(j)=='/')
+					gen = gen.substring(0,j) + gen.substring(j+3);
+			}
+			art.genre = gen;
+			//System.out.println(a+". "+art.genre);
+			//a++;
+		}
+		
+	  	//System.out.println(i+". "+value);
+	    //System.out.println(mBand.group(0));
+	  	//i++;
+	  }
+	  
+	  if(!art.name.equals(""))		//search if artist is already in the artists vector
+	  {
+		 int index = artistVec.indexOf(art);
+		 if(index!=-1)
+		 {
+			 musicalArtist old = artistVec.elementAt(index); // if artist already exist we'll check if he has at least one different property
+			 if(!art.genre.equals(old.genre) || !art.nationality.equals(old.nationality) || !art.type.equals(old.type))
+				 artistVec.add(art);
+		 }
+		 else
+			 artistVec.add(art);
+	  }
+    }
+
+    public void extractFullCountry(String value) throws IOException
+    {
+    	
     }
     
-    public void parsePos(BufferedReader br) throws IOException{
-   
-	  String value;
-	  //Read File Line By Line
-	  int i=1;
-	  int a=1;
-	  while ((value = br.readLine()) != null)
-	  {
-		  if(value.equals(""))
-			  break;
-		  String data = "";
-		  String temp;
-		  boolean gap=false;
-		  while(!gap)
-		  {
-			  temp = br.readLine();
-			  if(!temp.equals(""))
-				  data = data+temp;
-			  else
-				  gap = true;
-		  }
-		  if(value.contains("+"))
-			  continue;
-		  
-		  String altValue = value;
-		  while(altValue.indexOf(" ")!=-1)
-		  {
-			  int index = altValue.indexOf(" ");
-			  altValue = altValue.substring(0, index)+"[^\\.]+?"+altValue.substring(index+1);
-		  }
-		 
-		  musicalArtist art = new musicalArtist();
-		  String strSinger = altValue+"[^\\.]+?"+"(is/VBZ|was/VBD)[^\\.]+?(singer/NN|musician/NN)";
-		  Pattern singer = Pattern.compile(strSinger);
-		  Matcher mSinger = singer.matcher(data);
-		  if (mSinger.find()) 
-		  {
-			art.name = value;
-			art.type = "singer";
-			Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
-			Matcher mNation = nation.matcher(mSinger.group(0));
-			if(mNation.find())
-			{
-				art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
-				//System.out.println(a+". "+mNation.group(0));
-				//a++;
-			}
-			
-			Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (singer/NN|musician/NN)");
-			Matcher mGenre = genre.matcher(mSinger.group(0));
-			if(mGenre.find())
-			{
-				art.genre = mGenre.group(0);
-				//System.out.println(a+". "+mGenre.group(0));
-				//a++;
-			}
-			
-		  	//System.out.println(i+". "+value);
-		    //System.out.println(mSinger.group(0));
-		  	//i++;
-		  }
-		  
-		  String strBand = altValue+"[^\\.]+?"+"(is/VBZ|were/VBD)[^\\.]+?( band/NN)";
-		  Pattern band = Pattern.compile(strBand);
-		  Matcher mBand = band.matcher(data);
-		  if (mBand.find()) 
-		  {
-			art.name = value;
-			art.type = "band";
-			Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
-			Matcher mNation = nation.matcher(mBand.group(0));
-			if(mNation.find())
-			{
-				art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
-				//System.out.println(a+". "+mNation.group(0));
-				//a++;
-			}
-			
-			Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (band/NN)");
-			Matcher mGenre = genre.matcher(mBand.group(0));
-			if(mGenre.find())
-			{
-				art.genre = mGenre.group(0);
-				//System.out.println(a+". "+mGenre.group(0));
-				//a++;
-			}
-			
-		  	//System.out.println(i+". "+value);
-		    //System.out.println(mBand.group(0));
-		  	//i++;
-		  }
-		  
-		  if(!art.name.equals(""))		//search if artist is already in the artists vector
-		  {
-			  System.out.println(art.genre);
-		  }
+    public void extractPosCountry(String value, String data) throws IOException
+    {
     	
-	  }
     }
 }
