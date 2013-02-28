@@ -1,6 +1,5 @@
 import java.io.*;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -9,13 +8,13 @@ public class TextParser {
     BufferedReader br;
     Vector<Person> personVec;
     Vector<musicalArtist> artistVec;
-    Vector<country> countryVec;
+    Vector<Country> countryVec;
 
     public TextParser(String[] args){
         this.args = args;
         personVec = new Vector<Person>();
         artistVec = new Vector<musicalArtist>();
-        countryVec = new Vector<country>();
+        countryVec = new Vector<Country>();
     }
     
     public void run() throws IOException{
@@ -95,11 +94,12 @@ public class TextParser {
     
     public void extractFullArtist(String value) throws IOException
     {
-    	int counter = 1;
+    	//int counter = 1;
 
 		if(value.contains("{{Infobox musical artist"))
 		{
 			musicalArtist artist = new musicalArtist();
+			artist.prName = 0.99;						// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
 			int j = value.indexOf('(');
 			int k = value.indexOf('\n');
 			if(j!=-1 && j<k)
@@ -107,7 +107,7 @@ public class TextParser {
 			else
 				artist.name = value.substring(0,k);
 			//System.out.print(counter+". "+artist.name+" ");
-			counter++;
+			//counter++;
 			
 			Pattern background = Pattern.compile("Background.+?\\\n");
 			Matcher mBackground = background.matcher(value);
@@ -121,9 +121,11 @@ public class TextParser {
 				if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
 				{
 					artist.type = "singer";
+					artist.prType = 0.94;			// in this heuristic, probability for type is 0.94 (according to manual sampling)
 					//System.out.print(artist.type+" ");
 					if(mNation.find())
 					{
+						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
 						artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
 						//System.out.print(artist.nationality+" ");
 					}
@@ -131,9 +133,11 @@ public class TextParser {
 				else if(mBackground.group(0).contains("band") || mBackground.group(0).contains("Band"))
 				{
 					artist.type = "band";
+					artist.prType = 0.94;		// in this heuristic, probability for type is 0.94 (according to manual sampling)
 					//System.out.print(artist.type+" ");
 					if(mNation.find())
 					{
+						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
 						artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
 						//System.out.print(artist.nationality+" ");
 					}
@@ -145,10 +149,12 @@ public class TextParser {
 				int i = mGenre.group(0).indexOf('|');
 				if(i!=-1)
 				{
+					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
 					artist.genre = mGenre.group(0).substring(i+1, mGenre.group(0).length()-1).toLowerCase();
 				}
 				else
 				{
+					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
 					artist.genre = mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase();
 				}
 				//System.out.println(artist.genre);
@@ -156,7 +162,7 @@ public class TextParser {
 			else
 				//System.out.println("");
 
-			artistVec.add(artist);
+			artistVec.add(artist);			// adding the new artist to our artist vector
 		 }
 		  
 		 /*while ((strLine = br.readLine()) != null)
@@ -183,8 +189,8 @@ public class TextParser {
     
     public void extractPosArtist(String value, String data) throws IOException
     {
-  	  int i=1;
-  	  int a=1;
+  	  //int i=1;
+  	  //int a=1;
   	 
 	  String altValue = value;
 	  while(altValue.indexOf(" ")!=-1)
@@ -200,11 +206,14 @@ public class TextParser {
 	  if (mSinger.find()) 
 	  {
 		art.name = value;
+		art.prName = 0.99;				// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
 		art.type = "singer";
+		art.prType = 0.96;				// in this heuristic, probability for type is 0.96 (according to manual sampling)
 		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
 		Matcher mNation = nation.matcher(mSinger.group(0));
 		if(mNation.find())
 		{
+			art.prNationality = 0.62;	// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
 			art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
 			//System.out.println(a+". "+mNation.group(0));
 			//a++;
@@ -226,6 +235,7 @@ public class TextParser {
 				if(gen.charAt(j)=='/')
 					gen = gen.substring(0,j) + gen.substring(j+3);
 			}
+			art.prGenre = 0.44;				// in this heuristic, probability for genre is 0.44 (according to manual sampling)
 			art.genre = gen;
 			//System.out.println(a+". "+art.genre);
 			//a++;
@@ -242,11 +252,14 @@ public class TextParser {
 	  if (mBand.find()) 
 	  {
 		art.name = value;
+		art.prName = 0.99;					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
 		art.type = "band";
+		art.prType = 0.96;					// in this heuristic, probability for type is 0.96 (according to manual sampling)
 		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
 		Matcher mNation = nation.matcher(mBand.group(0));
 		if(mNation.find())
 		{
+			art.prNationality = 0.62;		// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
 			art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
 			//System.out.println(a+". "+mNation.group(0));
 			//a++;
@@ -268,6 +281,7 @@ public class TextParser {
 				if(gen.charAt(j)=='/')
 					gen = gen.substring(0,j) + gen.substring(j+3);
 			}
+			art.prGenre = 0.44;					// in this heuristic, probability for genre is 0.44 (according to manual sampling)
 			art.genre = gen;
 			//System.out.println(a+". "+art.genre);
 			//a++;

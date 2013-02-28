@@ -1,9 +1,4 @@
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.FileHandler;
@@ -52,6 +47,13 @@ public class projectMain {
 			System.out.println("Could not close file "+"country&nationality.txt");
 			return;
 		}
+        
+        // creating a scanner object for reciving and processing queries from user
+        queryScanner qScanner = new queryScanner(prop);
+        qScanner.run();
+        qScanner.scan.close();
+        
+
         
         
         Iterator<musicalArtist> itr = parser.artistVec.iterator();

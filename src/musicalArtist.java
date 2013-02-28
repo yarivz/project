@@ -1,6 +1,7 @@
 public class musicalArtist {
 	
 	String name;
+	double prName;
 	String genre;
 	double prGenre;
 	String type;
@@ -19,6 +20,7 @@ public class musicalArtist {
 	public musicalArtist() 
 	{
 		name = "";
+		prName = 0;
 		genre = "unknown";
 		prGenre = 0;
 		type = "unknown";
