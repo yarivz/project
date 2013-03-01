@@ -22,6 +22,7 @@ public class projectMain {
 
         TextParser parser = new TextParser(args);
         try {
+        	System.out.println("Processing input files");
 			parser.run();
 		} catch (IOException e) {
 			System.out.println("Parser error!\n");
@@ -48,6 +49,7 @@ public class projectMain {
 			return;
 		}
         
+        System.out.println("Ready for queries");
         // creating a scanner object for reciving and processing queries from user
         queryScanner qScanner = new queryScanner(prop);
         qScanner.run();

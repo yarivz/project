@@ -40,6 +40,7 @@ public class queryScanner{
         
         while (!query.equals("exit")) 
         {
+        	System.out.println("Please insert your query");
         	Matcher matcher;
             if(scan.hasNextLine())
             {
@@ -56,13 +57,29 @@ public class queryScanner{
             		}
             	}
             	
-            /*	switch(scase){
-            	case "":
-            		break;
-            	default:
-            		 throw new IllegalArgumentException();
-            	}*/
             }
+           
+            	switch(scase)
+            	{
+		        	case "when were":
+		        		break;
+		        	case "which people":
+		        		break;
+		        	case "when did":
+		        		break;
+		        	case "who is":
+		        		break;
+		        	case "countries":
+		        		break;
+		        	case "decay":
+		        		break;
+		        	case "country":
+		        		break;
+		        	default:
+		        		 throw new IllegalArgumentException();
+            	}
         }
-	}
+        scan.close();
+    }
+		
 }
