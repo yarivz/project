@@ -17,7 +17,6 @@ public class DB {
     static final String dbName = "wdm";
     static final String createTablePersons = "CREATE TABLE Persons " +
             "Name VARCHAR(255) not NULL," +
-    		"Name_probability DOUBLE," + 
             "BornIn INT," +
         	"BornIn_probability DOUBLE," + 
             "DiedIn INT," +
@@ -27,7 +26,6 @@ public class DB {
             "PRIMARY KEY (Name))";
     static final String createTableMusicians = "CREATE TABLE Musicians " +
             "Name VARCHAR(255) not NULL," +
-        	"Name_probability DOUBLE," + 
             "Type VARCHAR(255)," +
         	"Type_probability DOUBLE," + 
             "Nationality VARCHAR(255)," +
@@ -37,7 +35,6 @@ public class DB {
             "PRIMARY KEY (Name))";
     static final String createTableCountries = "CREATE TABLE Countries " +
             "Name VARCHAR(255) not NULL," +
-            "Name_probability DOUBLE," + 
             "Population INT," +
             "Popoulation_probability DOUBLE," + 
             "PRIMARY KEY (Name))";
@@ -94,7 +91,7 @@ public class DB {
     	{  		
     		Person person = itrp.next();
     		 try {
-	            st.executeUpdate("INSERT INTO Persons -> VALUES ('"+person.name+"','"+person.prName+"','"+Integer.parseInt(person.bornIn)+"','"+person.prBornIn+"','"+Integer.parseInt(person.diedIn)+"','"+"','"+person.prDiedIn+"','"+"','"+person.profession+"','"+"','"+person.prProf+"','"+")");
+	            st.executeUpdate("INSERT INTO Persons VALUES ('"+person.name+"','"+Integer.parseInt(person.bornIn)+"','"+person.prBornIn+"','"+Integer.parseInt(person.diedIn)+"','"+"','"+person.prDiedIn+"','"+"','"+person.profession+"','"+"','"+person.prProf+"','"+")");
 			} catch (SQLException ex) {
 				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
@@ -105,7 +102,7 @@ public class DB {
     	{
     		musicalArtist artist = itrm.next();
     		 try {
-	            st.executeUpdate("INSERT INTO Musicians -> VALUES ('"+artist.name+"','"+artist.prName+"','"+artist.type+"','"+artist.prType+"','"+artist.nationality+"','"+"','"+artist.prNationality+"','"+"','"+artist.genre+"','"+"','"+artist.prGenre+"','"+")");
+	            st.executeUpdate("INSERT INTO Musicians VALUES ('"+artist.name+"','"+artist.type+"','"+artist.prType+"','"+artist.nationality+"','"+"','"+artist.prNationality+"','"+"','"+artist.genre+"','"+"','"+artist.prGenre+"','"+")");
 			} catch (SQLException ex) {
 				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
@@ -116,10 +113,51 @@ public class DB {
     	{
     		Country country = itrc.next();
     		 try {
-	            st.executeUpdate("INSERT INTO Countries -> VALUES ('"+country.name+"','"+country.prName+"','"+Integer.parseInt(country.population)+"','"+country.prPopulation+")");
+	            st.executeUpdate("INSERT INTO Countries VALUES ('"+country.name+"','"+Integer.parseInt(country.population)+"','"+country.prPopulation+")");
 			} catch (SQLException ex) {
 				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     	}
+    }
+    
+    public void query1(String query)
+    {
+    	 try {
+    		  ResultSet rs = st.executeQuery("SELECT DISTINCT Name, BornIn, BornIn_probability FROM Persons WHERE Name = "+query.subSequence(10, query.lastIndexOf(' '))+";");
+	          //while(rs.hasNext())
+	        	  
+			} catch (SQLException ex) {
+				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+			}
+    }
+    
+    public void query2(String query)
+    {
+    	
+    }
+    
+    public void query3(String query)
+    {
+    	
+    }
+    
+    public void query4(String query)
+    {
+    	
+    }
+    
+    public void query5(String query)
+    {
+    	
+    }
+    
+    public void query6(String query)
+    {
+    	
+    }
+    
+    public void query7(String query)
+    {
+    	
     }
 }

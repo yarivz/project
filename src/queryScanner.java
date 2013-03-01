@@ -64,18 +64,25 @@ public class queryScanner{
             	switch(scase)
             	{
 		        	case "when were":
+		        		db.query1(query);
 		        		break;
 		        	case "which people":
+		        		db.query2(query);
 		        		break;
 		        	case "when did":
+		        		db.query3(query);
 		        		break;
 		        	case "who is":
+		        		db.query4(query);
 		        		break;
 		        	case "countries":
+		        		db.query5(query);
 		        		break;
 		        	case "decay":
+		        		db.query6(query);
 		        		break;
 		        	case "country":
+		        		db.query7(query);
 		        		break;
 		        	default:
 		        		 throw new IllegalArgumentException();
