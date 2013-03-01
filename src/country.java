@@ -2,10 +2,10 @@ public class Country {
 	
 	String name;
 	double prName;
-	int population;
+	String population;
 	double prPopulation;
 	
-	public Country(String name, double prName, int population, double prPopulation)
+	public Country(String name, double prName, String population, double prPopulation)
 	{
 		this.name = name;
 		this.prName = prName;
@@ -17,7 +17,7 @@ public class Country {
 	{
 		this.name = "";
 		this.prName = 0;
-		this.population = 0;
+		this.population = "unknown";
 		this.prPopulation = 0;
 	}
 	

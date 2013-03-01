@@ -1,7 +1,9 @@
 import java.io.*;
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class projectMain {
@@ -15,15 +17,15 @@ public class projectMain {
         } catch (IOException ex){
             System.out.println("could not create log file wdm.log\n");
         }
-        
-        boolean ret = DB.initDB();
+        DB db = new DB(new TextParser(args));
+        boolean ret = db.initDB();
         if(ret) System.out.println("The DB and tables were created\n");
         else  System.out.println("something went wrong, please check the log\n");
 
-        TextParser parser = new TextParser(args);
+        
         try {
         	System.out.println("Processing input files");
-			parser.run();
+			db.parser.run();
 		} catch (IOException e) {
 			System.out.println("Parser error!\n");
 		}
@@ -49,20 +51,32 @@ public class projectMain {
 			return;
 		}
         
-        
-        ////////
-        // INSERTING VECTORS INTO DB
-        /////////////////////////////
+        //filling db with our parser vectors
+        db.populateDB();
         
         
         System.out.println("Ready for queries");
         // creating a scanner object for reciving and processing queries from user
-        queryScanner qScanner = new queryScanner(prop);
+        queryScanner qScanner = new queryScanner(prop,db);
         qScanner.run();
-        qScanner.scan.close();
+        qScanner.scan.close();		//closing scanner
+        try {						//closing connection to db
+            if (qScanner.db.st != null) {
+            	qScanner.db.st.close();
+            }
+            if (qScanner.db.con != null) {
+            	qScanner.db.con.close();
+            }
+            
+            if (qScanner.db.con2 != null) {
+            	qScanner.db.con2.close();
+            }
+        } catch (SQLException ex) {
+        	projectMain.lgr.log(Level.WARNING, ex.getMessage(), ex);
+        }
 
 
-        Iterator<Person> itrp = parser.personVec.iterator();
+        Iterator<Person> itrp = db.parser.personVec.iterator();
         int k=1;
         while(itrp.hasNext())
         {
@@ -72,7 +86,7 @@ public class projectMain {
 
         }
         
-        Iterator<musicalArtist> itr = parser.artistVec.iterator();
+        Iterator<musicalArtist> itr = db.parser.artistVec.iterator();
         int r=1;
         while(itr.hasNext())
         {

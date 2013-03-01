@@ -3,42 +3,53 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Iterator;
 import java.util.logging.Level;
 
 public class DB {
+	
+	TextParser parser;
+	Connection con = null, con2 = null;
+    Statement st = null;
 
-    static final String user = "admin",password = "Password1";
+    static final String user = "root",password = "fixmixboom4";
     static final String url = "jdbc:mysql://localhost:3306/";
     static final String dbName = "wdm";
-    static final String createTablePersons = "CREATE TABLE PERSONS " +
-            "(id INTEGER not NULL AUTO_INCREMENT, " +
-            " name VARCHAR(255) not NULL," +
-            " bornIn VARCHAR(255)," +
-            " bornAt VARCHAR(255)," +
-            " diedIn VARCHAR(255)," +
-            " profession VARCHAR(255)," +
-            " PRIMARY KEY (id))";
+    static final String createTablePersons = "CREATE TABLE Persons " +
+            "Name VARCHAR(255) not NULL," +
+    		"Name_probability DOUBLE," + 
+            "BornIn INT," +
+        	"BornIn_probability DOUBLE," + 
+            "DiedIn INT," +
+        	"DienIn_probability DOUBLE," + 
+            "Profession VARCHAR(255)," +
+        	"Profession_probability DOUBLE," + 
+            "PRIMARY KEY (Name))";
     static final String createTableMusicians = "CREATE TABLE Musicians " +
-            "(id INTEGER not NULL AUTO_INCREMENT," +
-            "name VARCHAR(255) not NULL," +
+            "Name VARCHAR(255) not NULL," +
+        	"Name_probability DOUBLE," + 
             "Type VARCHAR(255)," +
-            "Label VARCHAR(255)," +
+        	"Type_probability DOUBLE," + 
+            "Nationality VARCHAR(255)," +
+        	"Nationality_probability DOUBLE" + 
             "Genre VARCHAR(255)," +
-            "PRIMARY KEY (id))";
+        	"Genre_probability DOUBLE," + 
+            "PRIMARY KEY (Name))";
     static final String createTableCountries = "CREATE TABLE Countries " +
-            "(id INTEGER not NULL AUTO_INCREMENT," +
-            "name VARCHAR(255) not NULL," +
-            "Population VARCHAR(255)," +
-            "Capitol VARCHAR(255)," +
-            "Area VARCHAR(255)," +
-            "PRIMARY KEY (id))";
+            "Name VARCHAR(255) not NULL," +
+            "Name_probability DOUBLE," + 
+            "Population INT," +
+            "Popoulation_probability DOUBLE," + 
+            "PRIMARY KEY (Name))";
 
-
-    public static boolean initDB() {
+    public DB(TextParser parser)
+    {
+    	this.parser = parser;
+    }
+    
+    public boolean initDB() {
 
         boolean ans = false;
-        Connection con = null, con2 = null;
-        Statement st = null, st2 = null;
         try {
             con = DriverManager.getConnection(url+"?user="+user+"&password="+password);
             st = con.createStatement();
@@ -50,52 +61,65 @@ public class DB {
             }
 
         } catch (SQLException ex) {
-            test.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+            projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
             ans=false;
         }
         if (ans){
             try{
                 con2 = DriverManager.getConnection(url+dbName,user,password);
-                st2 = con2.createStatement();
+                st = con2.createStatement();
                 if
-                        (st2.executeUpdate(createTablePersons)!=0
-                        ||st2.executeUpdate(createTableMusicians)!=0
-                        ||st2.executeUpdate(createTableCountries)!=0)
+                        (st.executeUpdate(createTablePersons)!=0
+                        ||st.executeUpdate(createTableMusicians)!=0
+                        ||st.executeUpdate(createTableCountries)!=0)
                 {
-                    test.lgr.log(Level.SEVERE,"Could not create some of the tables");
+                	projectMain.lgr.log(Level.SEVERE,"Could not create some of the tables");
                     ans=false;
                 }
             } catch (SQLException ex) {
-                test.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+            	projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
                 ans=false;
             }
         }
-        try {
-            if (st != null) {
-                st.close();
-            }
-            if (con != null) {
-                con.close();
-            }
-            if (st2 != null) {
-                st.close();
-            }
-            if (con2 != null) {
-                con.close();
-            }
-        } catch (SQLException ex) {
-                test.lgr.log(Level.WARNING, ex.getMessage(), ex);
-        }
+        
     return ans;
     }
-
-
+    
     public void populateDB(){
-
+    	Iterator<Person> itrp = parser.personVec.iterator();
+    	Iterator<musicalArtist> itrm = parser.artistVec.iterator();
+    	Iterator<Country> itrc = parser.countryVec.iterator();
+    	
+    	while(itrp.hasNext())
+    	{  		
+    		Person person = itrp.next();
+    		 try {
+	            st.executeUpdate("INSERT INTO Persons -> VALUES ('"+person.name+"','"+person.prName+"','"+Integer.parseInt(person.bornIn)+"','"+person.prBornIn+"','"+Integer.parseInt(person.diedIn)+"','"+"','"+person.prDiedIn+"','"+"','"+person.profession+"','"+"','"+person.prProf+"','"+")");
+			} catch (SQLException ex) {
+				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+			}
+             
+    	}
+    	
+    	while(itrm.hasNext())
+    	{
+    		musicalArtist artist = itrm.next();
+    		 try {
+	            st.executeUpdate("INSERT INTO Musicians -> VALUES ('"+artist.name+"','"+artist.prName+"','"+artist.type+"','"+artist.prType+"','"+artist.nationality+"','"+"','"+artist.prNationality+"','"+"','"+artist.genre+"','"+"','"+artist.prGenre+"','"+")");
+			} catch (SQLException ex) {
+				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+			}
+             
+    	}
+    	
+    	while(itrc.hasNext())
+    	{
+    		Country country = itrc.next();
+    		 try {
+	            st.executeUpdate("INSERT INTO Countries -> VALUES ('"+country.name+"','"+country.prName+"','"+Integer.parseInt(country.population)+"','"+country.prPopulation+")");
+			} catch (SQLException ex) {
+				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
+			}
+    	}
     }
-
 }
-
-
-
-//"CREATE TABLE PERSONS (id INTEGER AUTO_INCREMENT,name VARCHAR(255),bornIn VARCHAR(255),bornAt VARCHAR(255),diedIn VARCHAR(255),profession VARCHAR(255),PRIMARY KEY ( id ))

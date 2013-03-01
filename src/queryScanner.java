@@ -9,11 +9,13 @@ import java.util.regex.Pattern;
 public class queryScanner{
 	Scanner scan;
 	Properties prop;
+	DB db;
 	
-	public queryScanner(Properties prop)
+	public queryScanner(Properties prop, DB db)
 	{
 		scan = new Scanner(System.in);
 		this.prop = prop;
+		this.db = db;
 	}
 	
 	public void run()
