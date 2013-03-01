@@ -3,7 +3,6 @@ import java.util.Vector;
 public class Person implements Comparable{
 
     String name;
-    double prName;
     String bornIn;
     double prBornIn;
     String diedIn;
@@ -11,12 +10,11 @@ public class Person implements Comparable{
     String profession;
     double prProf;
 
-    public Person(String name, double probName, String bornInYear, double probBornIn, String diedInYear, double probDiedIn, String prof, double probProf){
+    public Person(String name, String bornInYear, double probBornIn, String diedInYear, double probDiedIn, String prof, double probProf){
         this.name = name;
         bornIn = bornInYear;
         diedIn = diedInYear;
         profession = prof;
-        prName = probName;
         prBornIn = probBornIn;
         prDiedIn = probDiedIn;
         prProf = probProf;
@@ -26,7 +24,7 @@ public class Person implements Comparable{
         if (!(o instanceof Person)){
             return 1;
         }
-        if (((Person)o).getName().equals(this.name)|| isContained(((Person)o).getName(),this.name)){
+        if (((Person)o).name.equals(this.name)|| isContained(((Person)o).name,this.name)){
             return 0;
         } else {
             return 1;
@@ -34,52 +32,8 @@ public class Person implements Comparable{
     }
 
     public boolean equals(Object o){
-      if (o!=null && o instanceof Person) return name.equals(((Person)o).getName());
+      if (o!=null && o instanceof Person) return name.equals(((Person)o).name);
       else return false;
-    }
-
-    public String getName(){
-        return name;
-    }
-
-    public double getPrName(){
-        return prName;
-    }
-
-    public String getBornIn(){
-        return bornIn;
-    }
-
-    public double getPrBornIn(){
-        return prBornIn;
-    }
-
-    public void addBornIn(String str){
-        bornIn=str;
-    }
-
-    public String getDiedIn(){
-        return diedIn;
-    }
-
-    public double getPrDiedIn(){
-        return prDiedIn;
-    }
-
-    public void addDiedIn(String str){
-        diedIn=str;
-    }
-
-    public String getProf(){
-        return profession;
-    }
-
-    public double getPrProf(){
-        return prBornIn;
-    }
-
-    public void addProf(String str){
-        profession=str;
     }
 
     public String toString(){
