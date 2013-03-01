@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class TextParser {
+	int index;
     String[] args;
     BufferedReader br;
     Vector<Person> personVec;
@@ -66,6 +67,7 @@ public class TextParser {
     Person p; Country c;
 
     public TextParser(String[] args){
+    	index=1;
         this.args = args;
         personVec = new Vector<Person>();
         artistVec = new Vector<musicalArtist>();
@@ -104,6 +106,7 @@ public class TextParser {
     public void parseFull() throws IOException{
     	String line = "";
 		//Read File Line By Line
+    	
     	while ((line = br.readLine()) != null) 
 		{
 			String value = "";
@@ -112,9 +115,9 @@ public class TextParser {
                 line = br.readLine();
             }
 			
-		//	extractFullArtist(value);       ------------------------------------------------------
+			extractFullArtist(value);      
 		//	extractFullPerson(value);      ----------------------------------------------------------------
-			extractFullCountry(value);
+		//	extractFullCountry(value);
 		}
     }
     
@@ -579,6 +582,7 @@ public class TextParser {
         name.usePattern(nameVar);
         data.usePattern(dataVar);
 
+        System.out.println(matcherVar.toString());
         if (mat.find())
         {
             str= mat.group();
@@ -603,10 +607,11 @@ public class TextParser {
                         }
                     }
                 }
-                System.out.println(str);
-                System.out.println(data.group());
-                System.out.println(pname);
-                System.out.println(pdata);
+                //System.out.println(str);
+                //System.out.println(data.group());
+                System.out.println(this.index+". "+pname+" "+pdata);
+                //System.out.println(pdata);
+                this.index++;
 
             }
         }

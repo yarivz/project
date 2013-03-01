@@ -1,5 +1,4 @@
 import java.util.Iterator;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -8,13 +7,11 @@ import java.util.regex.Pattern;
 
 public class queryScanner{
 	Scanner scan;
-	Properties prop;
 	DB db;
 	
-	public queryScanner(Properties prop, DB db)
+	public queryScanner(DB db)
 	{
 		scan = new Scanner(System.in);
-		this.prop = prop;
 		this.db = db;
 	}
 	
