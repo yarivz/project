@@ -10,6 +10,56 @@ public class TextParser {
     Vector<musicalArtist> artistVec;
     Vector<Country> countryVec;
 
+    String YEAR_PATTERN =  "[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}[^0-9a-zA-Z]{1,2}";
+    String INFOBOX_PATTERN = "Infobox[^\\.]+";
+    String NAME_PATTERN_A = "'''[A-Z][a-z]+\\s[A-Z][a-z]+(\\s[a-zA-Z])*'''";
+    String NAME_PATTERN_B = "\\[\\[[A-Z][a-z]+\\s[A-Z][a-z]+(\\s[a-zA-Z])*\\]\\]";
+    final int BIRTH_YEAR=1,DEATH_YEAR=2,PROFESSION=3;
+    /*
+    Patterns for the semi-structured Full.txt
+    */
+    Pattern nameA = Pattern.compile(NAME_PATTERN_A);
+    Pattern nameB = Pattern.compile(NAME_PATTERN_B);
+
+    Pattern bornInYearA1 = Pattern.compile(NAME_PATTERN_A+"[^\\.\\n]+born\\s[^\\.\\n\\*]+"+YEAR_PATTERN);
+    Pattern bornInYearA2 = Pattern.compile(NAME_PATTERN_A+"[^\\.\\n]+\\(born"+YEAR_PATTERN);
+    Pattern bornInYearA3 = Pattern.compile(NAME_PATTERN_A+".+"+YEAR_PATTERN+"\\s*-[\\[\\]\\w,\\s]+"+YEAR_PATTERN);
+    Pattern bornInYearB1 = Pattern.compile(NAME_PATTERN_B+"[^\\.\\n]+born\\s[^\\.\\n\\*]+"+YEAR_PATTERN);
+    Pattern bornInYearB2 = Pattern.compile(NAME_PATTERN_B+"[^\\.\\n]+\\(born"+YEAR_PATTERN);
+    Pattern bornInYearB3 = Pattern.compile(NAME_PATTERN_B+"[^\\.\\n]+\\(b\\. "+YEAR_PATTERN);
+    Pattern bornInYearB4 = Pattern.compile(NAME_PATTERN_B+".+\\(.*"+YEAR_PATTERN+"\\s*-[\\[\\]\\w,\\s]+"+YEAR_PATTERN);
+
+
+    Pattern diedInYearA1 = Pattern.compile(NAME_PATTERN_A+"[^\\.\\n]+died[^\\.]+?"+YEAR_PATTERN);
+    Pattern diedInYearA2 = Pattern.compile(NAME_PATTERN_A+".+"+YEAR_PATTERN+"\\s*-[\\[\\]\\w,\\s]+"+YEAR_PATTERN);
+    Pattern diedInYearB1 = Pattern.compile(NAME_PATTERN_B+"[^\\.\\n]+died[^\\.]+?"+YEAR_PATTERN);
+    Pattern diedInYearB2 = Pattern.compile(NAME_PATTERN_B+"[^\\.\\n]+\\(d\\. "+YEAR_PATTERN);
+    Pattern diedInYearB3 = Pattern.compile(NAME_PATTERN_B+".+\\(.*"+YEAR_PATTERN+"\\s*-[\\[\\]\\w,\\s]+"+YEAR_PATTERN);
+
+    Pattern nameInfobox = Pattern.compile("(N|n)ame[^\\n]*?=[^\\n]*?[a-zA-Z\\s]+?[^A-Z a-z]");
+    Pattern bornInInfobox = Pattern.compile(INFOBOX_PATTERN+"[^\\.]+(B|b)irth(_| )date[^\\n]+"+YEAR_PATTERN);
+    Pattern diedInInfobox = Pattern.compile(INFOBOX_PATTERN+"[^\\.]+death(_| )date[^\\n]+"+YEAR_PATTERN);
+    Pattern profInfobox = Pattern.compile(INFOBOX_PATTERN+"[^\\.]+(B|b)irth(_| )date[^\\n]+"+YEAR_PATTERN);
+
+    Pattern profPattern = Pattern.compile("Infobox(_| )[A-Za-z ]+[^A-Za-z ]");
+    Pattern yearPattern = Pattern.compile(YEAR_PATTERN);
+    /*
+    Patterns for the tagged POS.txt
+    */
+    Pattern personPOS = Pattern.compile("([A-Z][a-z]+/NNP\\s){2,}?[^\\.]+?(is/VBZ|was/VBD)\\s(a/DT|an/DT)([^\\.]+?(or|er|ian|ist)/NN)+?(\\sand/CC([^\\.\\n]+?(or|er|ian|ist)/NN)+)*");
+    Pattern bornInPOS = Pattern.compile("^([A-Z][a-z]+/NNP\\s){2,}?[^\\.]+[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}/CD");
+    Pattern profPOS = Pattern.compile("([a-z]+(or|er|ian|ist)/NN)+?(\\sand/CC\\s([a-z ]+(or|er|ian|ist)/NN)+)*");
+    Pattern yearPOS = Pattern.compile("[1-9][0-9]{2,3}/CD");
+
+    Matcher mat = yearPattern.matcher("");
+    Matcher data = yearPattern.matcher("");
+    Matcher name = nameA.matcher("");
+    int i;
+    String pname="",pdata="",nameLocation="",dataLocation="",nameCleanup="",dataCleanup="",str;
+    Pattern nameVar,matcherVar,dataVar;
+    double prName,prHeuristic;
+    Person p;
+
     public TextParser(String[] args){
         this.args = args;
         personVec = new Vector<Person>();
@@ -57,9 +107,8 @@ public class TextParser {
                 line = br.readLine();
             }
 			
-			
 			extractFullArtist(value);
-			//extractFullPerson(value);
+			extractFullPerson(value);
 			extractFullCountry(value);
 		}
     }
@@ -84,10 +133,9 @@ public class TextParser {
      		  }
      		  if(value.contains("+"))
      			  continue;
-     		  
-     		  
-     		 extractPosArtist(value,data);
-     		 //extractPosPerson(value,data);
+
+             extractPosArtist(value,data);
+     		 extractPosPerson(value,data);
      		 extractPosCountry(value,data);
      	  }
     }
@@ -95,7 +143,6 @@ public class TextParser {
     public void extractFullArtist(String value) throws IOException
     {
     	//int counter = 1;
-
 		if(value.contains("{{Infobox musical artist"))
 		{
 			musicalArtist artist = new musicalArtist();
@@ -115,8 +162,8 @@ public class TextParser {
 			Matcher mGenre = genre.matcher(value);
 			Pattern nation = Pattern.compile(".*?( is| was| were).*?\\[\\[[A-Z].*?\\|[A-Z][^\\s]*?\\]\\]");
 			Matcher mNation = nation.matcher(value);
-			
-			if(mBackground.find())
+
+            if(mBackground.find())
 			{
 				if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
 				{
@@ -315,4 +362,209 @@ public class TextParser {
     {
     	
     }
+
+    public void extractFullPerson(String value) throws IOException
+    {
+
+        matcherVar = bornInYearA1 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born" ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability    //1273 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInYearA2 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born" ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability    //10 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInYearA3 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = ""    ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability     //309 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability      //166 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInYearB2 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability     //48 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInYearB3 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "b."    ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability    //286 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInYearB4 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = ""      ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability   //160 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = bornInInfobox ; nameVar = nameInfobox ; dataVar = yearPattern ; nameLocation = "=" ; dataLocation = "date";
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability   //86 results
+        runPersonFullHeuristics(value,1,prName,prHeuristic);
+
+        matcherVar = diedInYearA1 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "died";
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability    //150 results
+        runPersonFullHeuristics(value,2,prName,prHeuristic);
+
+        matcherVar = diedInYearA2 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "-" ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability   //309 results
+        runPersonFullHeuristics(value,2,prName,prHeuristic);
+
+        matcherVar = diedInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "died";
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability   //195 results, some mistakes
+        runPersonFullHeuristics(value,2,prName,prHeuristic);
+
+        matcherVar = diedInYearB2 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "d." ;
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability  //305 results
+        runPersonFullHeuristics(value,2,prName,prHeuristic);
+
+        matcherVar = diedInYearB3 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "-";
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prName=0 ; prHeuristic=0;   //TODO fix probability  //160 results  , some mistakes
+        runPersonFullHeuristics(value,2,prName,prHeuristic);
+
+        matcherVar = diedInInfobox ; nameVar = nameInfobox ; dataVar = yearPattern ; nameLocation = "=" ; dataLocation = "date";
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";  prName=0 ; prHeuristic=0;   //TODO fix probability //31 results
+        runPersonFullHeuristics(value,2,prName,prHeuristic);
+
+        matcherVar = bornInInfobox ; nameVar = nameInfobox ; dataVar = profPattern ; nameLocation = "=" ; dataLocation = "Infobox";
+        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^a-z A-Z]"; prName=0 ; prHeuristic=0;   //TODO fix probability 86 results
+        runPersonFullHeuristics(value,3,prName,prHeuristic);
+    }
+
+    public void runPersonFullHeuristics(String value,int FLAG, double prName, double prHeuristic) //TODO fix probability  Max
+    {
+        mat.usePattern(matcherVar).reset(value);
+        name.usePattern(nameVar);
+        data.usePattern(dataVar);
+
+        if (mat.find())
+        {
+            str= mat.group();
+            if (name.reset(str).find()){
+                pname = name.group().substring(name.group().indexOf(nameLocation)).replaceAll(nameCleanup,"").trim();
+                if(!pname.isEmpty()){
+                    if(data.reset(str).find(str.indexOf(dataLocation))){
+                        switch(FLAG){
+                            case(BIRTH_YEAR):{
+                                pdata = data.group().replaceAll(dataCleanup,"");
+                                p = new Person(pname,prName,pdata,prHeuristic,"",0,"",0);
+                                if ((i = personVec.indexOf(p))>=0){
+                                    if (personVec.get(i).getBornIn().equalsIgnoreCase(pdata)){
+                                        //TODO get the max probability
+                                    }
+                                    else{
+                                        personVec.add(p);
+                                    }
+                                }
+                                else{
+                                    personVec.add(p);
+                                }
+                                break;
+                            }
+                            case(DEATH_YEAR):{
+                                pdata = data.group().replaceAll(dataCleanup,"");
+                                p = new Person(pname,prName,"",0,pdata,prHeuristic,"",0);
+                                if ((i = personVec.indexOf(p))>=0){
+                                    if (personVec.get(i).getDiedIn().equalsIgnoreCase(pdata)){
+                                        //TODO get the max probability
+                                    }
+                                    else{
+                                        personVec.add(p);
+                                    }
+                                }
+                                else{
+                                    personVec.add(p);
+                                }
+                                break;
+                            }
+                            case(PROFESSION):{
+                                pdata = data.group().substring(data.group().indexOf("Infobox")+7).replaceAll(dataCleanup,"").toLowerCase().trim();
+                                if(!pdata.equalsIgnoreCase("person")){
+                                    if(pdata.equals("football biography")) pdata="football player";
+                                    p = new Person(pname,prName,"",0,"",0,pdata,prHeuristic);
+                                    if ((i = personVec.indexOf(p))>=0){
+                                        if (personVec.get(i).getProf().equalsIgnoreCase(pdata)){
+                                            //TODO get the max probability
+                                        }
+                                        else{
+                                            personVec.add(p);
+                                        }
+                                    }
+                                    else{
+                                        personVec.add(p);
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void extractPosPerson(String value, String data) throws IOException
+    {
+        matcherVar = personPOS ; dataVar = profPOS ; dataLocation = "/DT" ; prName=0 ; prHeuristic=0;   //TODO fix probability
+        runProfPosHeuristics(value,data,prName,prHeuristic);
+
+        matcherVar = bornInPOS ; dataVar = yearPOS ; dataLocation = "/NNP" ; dataCleanup = "[^0-9]"; ; prName=0 ; prHeuristic=0;  //TODO fix probability
+        runBornInPosHeuristics(value,data,prName,prHeuristic);
+    }
+
+    public void runProfPosHeuristics(String name, String lineData, double prName, double prHeuristic)    //TODO fix probability Max
+    {
+        mat.usePattern(matcherVar).reset(lineData);
+        data.usePattern(dataVar);
+        if (mat.find())
+        {
+            str= mat.group();
+            pname = name.trim();
+            if(!pname.isEmpty()){
+                if(data.reset(str).find(str.indexOf(dataLocation))){
+                    String[] tempdata = data.group().split("and/CC");
+                    for (String s:tempdata){
+                        pdata=s.replaceAll("/NN","").trim();
+                        p = new Person(pname,prName,"",0,"",0,pdata,prHeuristic);
+                        if ((i = personVec.indexOf(p))>=0){
+                            if (personVec.get(i).getProf().equalsIgnoreCase(pdata)){
+                                //TODO get the max probability
+                            }
+                            else{
+                                personVec.add(p);
+                            }
+                        }
+                        else{
+                            personVec.add(p);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void runBornInPosHeuristics(String name, String lineData, double prName, double prHeuristic)   //TODO fix probability  Max
+    {
+        mat.usePattern(matcherVar).reset(lineData);
+        data.usePattern(dataVar);
+        if (mat.find())
+        {
+            str= mat.group();
+            pname = name.trim();
+            if(!pname.isEmpty()){
+                if(data.reset(str).find(str.indexOf(dataLocation))){
+                    pdata=data.group().replaceAll(dataCleanup,"");
+                    p = new Person(pname,prName,pdata,prHeuristic,"",0,"",0);
+                    if ((i = personVec.indexOf(p))>=0){
+                        if (personVec.get(i).getBornIn().equalsIgnoreCase(pdata)){
+                            //TODO get the max probability
+                        }
+                        else{
+                            personVec.add(p);
+                        }
+                    }
+                    else{
+                        personVec.add(p);
+                    }
+                }
+            }
+        }
+    }
+
 }

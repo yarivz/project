@@ -56,24 +56,12 @@ public class queryScanner{
             		}
             	}
             	
-            	switch(scase){
-            	case "when were":
-            		break;
-            	case "which people":
-            		break;
-            	case "when did":
-            		break;
-            	case "who is":
-            		break;
-            	case "countries":
-            		break;
-            	case "decay":
-            		break;
-            	case "country":
+            /*	switch(scase){
+            	case "":
             		break;
             	default:
             		 throw new IllegalArgumentException();
-            	}
+            	}*/
             }
         }
 	}

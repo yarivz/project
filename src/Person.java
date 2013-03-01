@@ -1,23 +1,32 @@
+import java.util.Vector;
 
 public class Person implements Comparable{
 
     String name;
+    double prName;
     String bornIn;
+    double prBornIn;
     String diedIn;
+    double prDiedIn;
     String profession;
+    double prProf;
 
-    public Person(String name, String bornIn, String diedIn, String profession){
+    public Person(String name, double probName, String bornInYear, double probBornIn, String diedInYear, double probDiedIn, String prof, double probProf){
         this.name = name;
-        this.bornIn = bornIn;
-        this.diedIn = diedIn;
-        this.profession = profession;
+        bornIn = bornInYear;
+        diedIn = diedInYear;
+        profession = prof;
+        prName = probName;
+        prBornIn = probBornIn;
+        prDiedIn = probDiedIn;
+        prProf = probProf;
     }
 
     public int compareTo(Object o){
         if (!(o instanceof Person)){
             return 1;
         }
-        if (((Person)o).getName().equals(this.name)|| iscontained(((Person)o).getName(),this.name)){
+        if (((Person)o).getName().equals(this.name)|| isContained(((Person)o).getName(),this.name)){
             return 0;
         } else {
             return 1;
@@ -33,36 +42,51 @@ public class Person implements Comparable{
         return name;
     }
 
+    public double getPrName(){
+        return prName;
+    }
+
     public String getBornIn(){
         return bornIn;
     }
 
-    public void addBornIn(String str){
-        if(bornIn.isEmpty()) bornIn=str;
-        else bornIn = bornIn+'('+str+')';
+    public double getPrBornIn(){
+        return prBornIn;
     }
+
+    public void addBornIn(String str){
+        bornIn=str;
+    }
+
     public String getDiedIn(){
         return diedIn;
     }
 
-    public void addDiedIn(String str){
-        if(diedIn.isEmpty()) diedIn=str;
-        else diedIn = diedIn+'('+str+')';
+    public double getPrDiedIn(){
+        return prDiedIn;
     }
+
+    public void addDiedIn(String str){
+        diedIn=str;
+    }
+
     public String getProf(){
         return profession;
     }
 
+    public double getPrProf(){
+        return prBornIn;
+    }
+
     public void addProf(String str){
-        if(profession.isEmpty()) profession=str;
-        else profession = profession+'('+str+')';
+        profession=str;
     }
 
     public String toString(){
         return name+':'+bornIn+':'+diedIn+':'+profession+'\n';
     }
 
-    public boolean iscontained(String a,String b){
+    public boolean isContained(String a,String b){
         if (a.contains(" ") && b.contains(" ")){
             String[] as = a.split(" ");
             boolean ansa=true;

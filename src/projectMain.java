@@ -27,7 +27,7 @@ public class projectMain {
 			System.out.println("Parser error!\n");
 		}
         
-        
+
         //loading the country&nationality file
         Properties prop = new Properties();
         FileInputStream fstream;
@@ -52,9 +52,17 @@ public class projectMain {
         queryScanner qScanner = new queryScanner(prop);
         qScanner.run();
         qScanner.scan.close();
-        
 
-        
+
+        Iterator<Person> itrp = parser.personVec.iterator();
+        int k=1;
+        while(itrp.hasNext())
+        {
+            Person p = itrp.next();
+            System.out.println(k+". "+p.getName()+" "+p.getBornIn()+" " +p.getDiedIn()+" "+p.getProf());
+            k++;
+
+        }
         
         Iterator<musicalArtist> itr = parser.artistVec.iterator();
         int r=1;
