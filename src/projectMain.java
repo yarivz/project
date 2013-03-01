@@ -49,6 +49,12 @@ public class projectMain {
 			return;
 		}
         
+        
+        ////////
+        // INSERTING VECTORS INTO DB
+        /////////////////////////////
+        
+        
         System.out.println("Ready for queries");
         // creating a scanner object for reciving and processing queries from user
         queryScanner qScanner = new queryScanner(prop);
