@@ -403,6 +403,7 @@ public class TextParser {
         */
 
        temp = new Person();
+        if(value.contains("Khan")){
         //Check if the value pattern is an Infobox
         if (value.contains("{{Infobox")||value.contains("{{infobox")){
             matcherVar = bornInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "irth";
@@ -469,6 +470,7 @@ public class TextParser {
         if (!temp.name.equals("'NULL'")){
             personVec.add(temp);
         }
+        }
     }
 
     public void runPersonFullHeuristics(Person temp, String value,int FLAG,double prHeuristic)
@@ -510,7 +512,7 @@ public class TextParser {
             str= mat.group();
             int k = value.indexOf('\n');
             int j = value.indexOf(dataLocation);
-            pname = value.substring(0,k).replaceAll(nameCleanup,"").trim();
+            pname = value.substring(0,k).replaceAll(nameCleanup,"").trim().replaceAll("'","");
             if(!pname.isEmpty()&&!pname.contains("iography")){   //filtering out biography values
                 if(data.reset(value).find(j)){
                     switch(FLAG){
@@ -625,7 +627,7 @@ public class TextParser {
             }
             if(flag){           //at least one of the fields has a different value
                 if (!temp.name.equals("'NULL'")){
-                    personVec.add(temp);
+                   personVec.add(temp);
                 }
             }
         }
