@@ -49,12 +49,12 @@ public class projectMain {
         else  System.out.println("something went wrong, please check the log\n");
 
         
-       /*try {
+       try {
         	System.out.println("Processing input files. This might take a few minutes. Feel free to grab some coffee.");
 			db.parser.run();
 		} catch (IOException e) {
 			System.out.println("Parser error!\n");
-		}*/
+		}
         
         
         //filling db with our parser vectors

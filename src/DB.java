@@ -92,7 +92,7 @@ public class DB {
     }
     
     public void populateDB(){
-    	Person haim = new Person("'haim'","'1989'",0.9,"'2050'",1,"'singer'",0.5);
+    	/*Person haim = new Person("'haim'","'1989'",0.9,"'2050'",1,"'singer'",0.5);
     	parser.personVec.add(haim);
     	Person haim2 = new Person("'haim'","'1989'",1,"'2050'",1,"'singer'",0.7);
     	parser.personVec.add(haim2);
@@ -107,7 +107,7 @@ public class DB {
     	Country france = new Country("'France'","'500'",0.25);
     	parser.countryVec.add(france);
     	Country egypt = new Country("'Egypt'","'7000'",0.15);
-    	parser.countryVec.add(egypt);
+    	parser.countryVec.add(egypt);*/
     	
     	
     	Iterator<Person> itrp = parser.personVec.iterator();
@@ -148,11 +148,7 @@ public class DB {
     	}
     }
     
-    /////////
-    //TO-DO: multiply by heuristic's general probability
-    /////////
-    
-    public void query1(String query)
+    public void query1(String query) throws RuntimeException
     {
     	 try {
     		  ResultSet rs = st.executeQuery("SELECT DISTINCT BornIn, BornIn_probability FROM Persons WHERE Name = '"+query.subSequence(10, query.lastIndexOf(' '))+"' AND BornIn IS NOT NULL ORDER BY BornIn_probability DESC;");
@@ -170,7 +166,7 @@ public class DB {
 			}
     }
     
-    public void query2(String query)
+    public void query2(String query) throws RuntimeException
     {
     	try {
   		  ResultSet rs = st.executeQuery("SELECT DISTINCT Name, BornIn_probability, Profession_probability FROM Persons WHERE Profession = '"+query.subSequence(33, query.lastIndexOf(','))+"' AND BornIn = '"+query.substring(query.lastIndexOf(' ')+1)+"';");
@@ -187,7 +183,7 @@ public class DB {
 			}
     }
     
-    public void query3(String query)
+    public void query3(String query) throws RuntimeException
     {
     	 try {
    		  ResultSet rs = st.executeQuery("SELECT DISTINCT DiedIn, DiedIn_probability FROM Persons WHERE Name = '"+query.subSequence(9, query.lastIndexOf(' '))+"' AND DiedIn IS NOT NULL ORDER BY DiedIn_probability DESC;");
@@ -204,7 +200,7 @@ public class DB {
 			}
     }
     
-    public void query4(String query)
+    public void query4(String query) throws RuntimeException
     {
     	 try {
       		  ResultSet rs = st.executeQuery("SELECT DISTINCT Type, Type_probability, Nationality, Nationality_probability, Genre, Genre_probability FROM Musicians WHERE Name = '"+query.substring(14)+"' AND Type IS NOT NULL AND Nationality IS NOT NULL AND Genre IS NOT NULL;");
@@ -233,7 +229,7 @@ public class DB {
    			}
     }
     
-    public void query5(String query)
+    public void query5(String query) throws RuntimeException
     {
     	try {
      		  ResultSet rs = st.executeQuery("SELECT DISTINCT Name, Population_probability FROM Countries ORDER BY Population DESC LIMIT "+query.substring(query.indexOf('-')+1, query.lastIndexOf('p')-3)+";");
@@ -250,7 +246,7 @@ public class DB {
   			}
     }
     
-    public void query6(String query)
+    public void query6(String query) throws RuntimeException
     {
     	try {
     		int decade = Integer.parseInt(query.substring(42, query.lastIndexOf(' ')));
