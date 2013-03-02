@@ -63,13 +63,13 @@ public class TextParser {
     String pname="",pdata="",nameLocation="",dataLocation="",nameCleanup="",dataCleanup="",str;
     Pattern nameVar,matcherVar,dataVar;
     double prHeuristic;
-    Person p,x; Country c,t;
+    Person p,x,temp; Country c,t;
 
     public TextParser(String[] args){
         this.args = args;
-        personVec = new Vector<Person>();
-        artistVec = new Vector<musicalArtist>();
-        countryVec = new Vector<Country>();
+        personVec = new Vector<>();
+        artistVec = new Vector<>();
+        countryVec = new Vector<>();
     }
     
     public void run() throws IOException{
@@ -402,8 +402,7 @@ public class TextParser {
         @param prHeuristic - the probability (confidence score) of this specific heuristic, calculated manually on a test-set
         */
 
-       Person temp = new Person();
-
+       temp = new Person();
         //Check if the value pattern is an Infobox
         if (value.contains("{{Infobox")||value.contains("{{infobox")){
             matcherVar = bornInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "irth";
@@ -436,7 +435,7 @@ public class TextParser {
             nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.97;
             runPersonFullHeuristics(temp,value,2,prHeuristic);
 
-            if(!temp.name.equals("'NULL'"))
+            if(temp.name.equals("'NULL'"))
             {
                 matcherVar = bornInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
                 nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.58;
@@ -467,7 +466,9 @@ public class TextParser {
                 runPersonFullHeuristics(temp,value,2,prHeuristic);
             }
         }
-        personVec.add(temp);
+        if (!temp.name.equals("'NULL'")){
+            personVec.add(temp);
+        }
     }
 
     public void runPersonFullHeuristics(Person temp, String value,int FLAG,double prHeuristic)
@@ -485,12 +486,12 @@ public class TextParser {
                     if(data.reset(str).find(str.indexOf(dataLocation))){
                         switch(FLAG){  //FLAG=1 - Birth Year, FLAG=2 - Death Year
                             case(BIRTH_YEAR):{
-                                createPerson1(temp, pname,prHeuristic);
-                                break;
+                                createPerson1(temp,pname,prHeuristic);
+                                return;
                             }
                             case(DEATH_YEAR):{
                                 createPerson2(temp,pname,prHeuristic);
-                                break;
+                                return;
                             }
                         }
                     }
@@ -515,18 +516,18 @@ public class TextParser {
                     switch(FLAG){
                         case(BIRTH_YEAR):{
                             createPerson1(temp,pname,prHeuristic);
-                            break;
+                            return;
                         }
                         case(DEATH_YEAR):{
                             createPerson2(temp,pname,prHeuristic);
-                            break;
+                            return;
                         }
                         case(PROFESSION):{
                             pdata = data.group().substring(data.group().indexOf("Infobox")+7).replaceAll(dataCleanup,"").toLowerCase().trim();
                             if(!pdata.equalsIgnoreCase("person")&&!pdata.contains("iography")){
                                 createPerson3(temp,pname,pdata,prHeuristic);
                             }
-                            break;
+                            return;
                         }
                     }
                 }
@@ -545,7 +546,7 @@ public class TextParser {
         @param prHeuristic - the probability (confidence score) of this specific heuristic, calculated manually on a test-set
         */
 
-        Person temp = new Person();
+        temp = new Person();
 
         matcherVar = personPOS ; dataVar = profPOS ; dataLocation = "/DT" ; dataCleanup = "/NN"; prHeuristic=0.79;
         runPosHeuristics(temp,value,data,3,prHeuristic);
@@ -623,12 +624,16 @@ public class TextParser {
                 }
             }
             if(flag){           //at least one of the fields has a different value
-                personVec.add(temp);
+                if (!temp.name.equals("'NULL'")){
+                    personVec.add(temp);
+                }
             }
         }
         else   //the person does not exist yet
         {
-            personVec.add(temp);
+            if (!temp.name.equals("'NULL'")){
+                personVec.add(temp);
+            }
         }
     }
 
@@ -639,17 +644,17 @@ public class TextParser {
         if (mat.find())         //if a match to the general pattern of name+data is found, extract them
         {
             str= mat.group();
-            pname = name.trim();
+            pname = name.trim().replaceAll("'","");
             if(!pname.isEmpty()){ //if a name was extracted
                 if(data.reset(str).find(str.indexOf(dataLocation))){
                     switch(FLAG){
                         case(BIRTH_YEAR):{
                             createPerson1(temp,pname,prHeuristic);
-                            break;
+                            return;
                         }
                         case(DEATH_YEAR):{
                             createPerson2(temp,pname,prHeuristic);
-                            break;
+                            return;
                         }
                         case(PROFESSION):{
                             String[] tempdata = data.group().split("and/CC");   //account for multiple professions for the same person
@@ -657,7 +662,7 @@ public class TextParser {
                                 pdata=s.replaceAll(dataCleanup,"").trim().toLowerCase();
                                 createPerson3(temp,pname,pdata,prHeuristic);
                             }
-                            break;
+                            return;
                         }
                     }
                 }
@@ -712,6 +717,8 @@ public class TextParser {
 
     //helper functions to be used in the heuristics
     public void createPerson1(Person temp, String pname, double prHeuristic){
+        if (temp.name.equals("'NULL'"))
+            temp.name = "'"+pname+"'";
         pdata = data.group().replaceAll(dataCleanup,"");
         if (temp.bornIn.equals("NULL")){
             temp.bornIn = "'"+pdata+"'";
@@ -730,6 +737,8 @@ public class TextParser {
     }
 
     public void createPerson2(Person temp, String pname, double prHeuristic){
+        if (temp.name.equals("'NULL'"))
+            temp.name = "'"+pname+"'";
         pdata = data.group().replaceAll(dataCleanup,"");
         if (temp.diedIn.equals("NULL")){
             temp.diedIn = "'"+pdata+"'";
@@ -748,6 +757,8 @@ public class TextParser {
     }
 
     public void createPerson3(Person temp, String pname, String pdata, double prHeuristic){
+        if (temp.name.equals("'NULL'"))
+            temp.name = "'"+pname+"'";
         if (temp.profession.equals("'NULL'")){
             temp.profession = "'"+pdata+"'";
             temp.prProf = prHeuristic;
