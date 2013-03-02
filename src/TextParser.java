@@ -153,9 +153,9 @@ public class TextParser {
 			int j = value.indexOf('(');
 			int k = value.indexOf('\n');
 			if(j!=-1 && j<k)
-				artist.name = value.substring(0,j-1);
+				artist.name = "'"+value.substring(0,j-1)+"'";
 			else
-				artist.name = value.substring(0,k);
+				artist.name = "'"+value.substring(0,k)+"'";
 			//System.out.print(counter+". "+artist.name+" ");
 			//counter++;
 			
@@ -170,25 +170,25 @@ public class TextParser {
 			{
 				if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
 				{
-					artist.type = "singer";
+					artist.type = "'singer'";
 					artist.prType = 0.94;			// in this heuristic, probability for type is 0.94 (according to manual sampling)
 					//System.out.print(artist.type+" ");
 					if(mNation.find())
 					{
 						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
-						artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
+						artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
 						//System.out.print(artist.nationality+" ");
 					}
 				}
 				else if(mBackground.group(0).contains("band") || mBackground.group(0).contains("Band"))
 				{
-					artist.type = "band";
+					artist.type = "'band'";
 					artist.prType = 0.94;		// in this heuristic, probability for type is 0.94 (according to manual sampling)
 					//System.out.print(artist.type+" ");
 					if(mNation.find())
 					{
 						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
-						artist.nationality = mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1);
+						artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
 						//System.out.print(artist.nationality+" ");
 					}
 				}
@@ -200,12 +200,12 @@ public class TextParser {
 				if(i!=-1)
 				{
 					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
-					artist.genre = mGenre.group(0).substring(i+1, mGenre.group(0).length()-1).toLowerCase();
+					artist.genre = "'"+mGenre.group(0).substring(i+1, mGenre.group(0).length()-1).toLowerCase()+"'";
 				}
 				else
 				{
 					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
-					artist.genre = mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase();
+					artist.genre = "'"+mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase()+"'";
 				}
 				//System.out.println(artist.genre);
 			}
@@ -255,15 +255,15 @@ public class TextParser {
 	  Matcher mSinger = singer.matcher(data);
 	  if (mSinger.find()) 
 	  {
-		art.name = value;   			// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
-		art.type = "singer";
+		art.name = "'"+value+"'";   			// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
+		art.type = "'singer'";
 		art.prType = 0.96;				// in this heuristic, probability for type is 0.96 (according to manual sampling)
 		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
 		Matcher mNation = nation.matcher(mSinger.group(0));
 		if(mNation.find())
 		{
 			art.prNationality = 0.62;	// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
-			art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
+			art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
 			//System.out.println(a+". "+mNation.group(0));
 			//a++;
 		}
@@ -285,7 +285,7 @@ public class TextParser {
 					gen = gen.substring(0,j) + gen.substring(j+3);
 			}
 			art.prGenre = 0.44;				// in this heuristic, probability for genre is 0.44 (according to manual sampling)
-			art.genre = gen;
+			art.genre = "'"+gen+"'";
 			//System.out.println(a+". "+art.genre);
 			//a++;
 		}
@@ -300,15 +300,15 @@ public class TextParser {
 	  Matcher mBand = band.matcher(data);
 	  if (mBand.find()) 
 	  {
-		art.name = value;					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
-		art.type = "band";
+		art.name = "'"+value+"'";					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
+		art.type = "'band'";
 		art.prType = 0.96;					// in this heuristic, probability for type is 0.96 (according to manual sampling)
 		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
 		Matcher mNation = nation.matcher(mBand.group(0));
 		if(mNation.find())
 		{
 			art.prNationality = 0.62;		// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
-			art.nationality = mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'));
+			art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
 			//System.out.println(a+". "+mNation.group(0));
 			//a++;
 		}
@@ -330,7 +330,7 @@ public class TextParser {
 					gen = gen.substring(0,j) + gen.substring(j+3);
 			}
 			art.prGenre = 0.44;					// in this heuristic, probability for genre is 0.44 (according to manual sampling)
-			art.genre = gen;
+			art.genre = "'"+gen+"'";
 			//System.out.println(a+". "+art.genre);
 			//a++;
 		}
@@ -340,7 +340,7 @@ public class TextParser {
 	  	//i++;
 	  }
 	  
-	  if(!art.name.equals(""))		//search if artist is already in the artists vector
+	  if(!art.name.equals("'NULL'"))		//search if artist is already in the artists vector
 	  {
 		 int index = artistVec.indexOf(art);
 		 if(index!=-1)
@@ -566,7 +566,7 @@ public class TextParser {
                 if(data.reset(value).find(j)){
                     pdata = data.group().replaceAll(dataCleanup,"").trim();
                     if(!pdata.isEmpty()){
-                        c = new Country(pname,pdata,prHeuristic);
+                        c = new Country("'"+pname+"'","'"+pdata+"'",prHeuristic);
                         if ((i = countryVec.indexOf(c))>=0){
                             if ((t = countryVec.get(i)).population.equalsIgnoreCase(pdata)){
                                 t.prPopulation = Math.max(t.prPopulation,prHeuristic);
@@ -587,7 +587,7 @@ public class TextParser {
     //helper functions to be used in the heuristics
     public void createPerson1(String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
-        p = new Person(pname,pdata,prHeuristic,"",0,"",0);
+        p = new Person("'"+pname+"'","'"+pdata+"'",prHeuristic,"'NULL'",0,"'NULL'",0);
         if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
             if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same birth year
                 x.prBornIn = Math.max(x.prBornIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
@@ -603,7 +603,7 @@ public class TextParser {
 
     public void createPerson2(String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
-        p = new Person(pname,"",0,pdata,prHeuristic,"",0);
+        p = new Person("'"+pname+"'","'NULL'",0,"'"+pdata+"'",prHeuristic,"'NULL'",0);
         if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
             if ((x = personVec.get(i)).diedIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same death year
                 x.prDiedIn = Math.max(x.prDiedIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
@@ -618,7 +618,7 @@ public class TextParser {
     }
 
     public void createPerson3(String pname, String pdata, double prHeuristic){
-        p = new Person(pname,"",0,"",0,pdata,prHeuristic);
+        p = new Person("'"+pname+"'","'NULL'",0,"'NULL'",0,"'"+pdata+"'",prHeuristic);
         if ((i = personVec.indexOf(p))>=0){                                  //check if the person already exists
             if ((x = personVec.get(i)).profession.equalsIgnoreCase(pdata)){  //if exists, check if he has the same profession
                 x.prProf = Math.max(x.prProf,prHeuristic);                   //if same profession, update the prob. to the maximum of the two

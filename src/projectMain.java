@@ -50,7 +50,7 @@ public class projectMain {
 
         
         try {
-        	System.out.println("Processing input files");
+        	System.out.println("Processing input files. This might take a few minutes. Feel free to grab some coffee.");
 			db.parser.run();
 		} catch (IOException e) {
 			System.out.println("Parser error!\n");

@@ -26,7 +26,7 @@ public class queryScanner{
         Pattern p3 = Pattern.compile("when did");
         Pattern p4 = Pattern.compile("who is");
         Pattern p5 = Pattern.compile("countries");
-        Pattern p6 = Pattern.compile("decay");
+        Pattern p6 = Pattern.compile("decade");
         Pattern p7 = Pattern.compile("country");
         Pattern p8 = Pattern.compile("exit");
         patVec.add(p1);
@@ -78,7 +78,7 @@ public class queryScanner{
 		        	case "countries":
 		        		db.query5(query);
 		        		break;
-		        	case "decay":
+		        	case "decade":
 		        		db.query6(query);
 		        		break;
 		        	case "country":

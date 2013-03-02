@@ -18,12 +18,12 @@ public class musicalArtist {
 
 	public musicalArtist() 
 	{
-		name = "";
-		genre = "unknown";
+		name = "'NULL'";
+		genre = "'NULL'";
 		prGenre = 0;
-		type = "unknown";
+		type = "'NULL'";
 		prType = 0;
-		nationality = "unknown";
+		nationality = "'NULL'";
 		prNationality = 0;
 	}
 	
