@@ -28,6 +28,7 @@ public class queryScanner{
         Pattern p5 = Pattern.compile("countries");
         Pattern p6 = Pattern.compile("decay");
         Pattern p7 = Pattern.compile("country");
+        Pattern p8 = Pattern.compile("exit");
         patVec.add(p1);
         patVec.add(p2);
         patVec.add(p3);
@@ -35,10 +36,12 @@ public class queryScanner{
         patVec.add(p5);
         patVec.add(p6);
         patVec.add(p7);
+        patVec.add(p8);
         
-        
+      
         while (!query.equals("exit")) 
         {
+        	System.out.println("");
         	System.out.println("Please insert your query");
         	Matcher matcher;
             if(scan.hasNextLine())
@@ -81,8 +84,10 @@ public class queryScanner{
 		        	case "country":
 		        		db.query7(query);
 		        		break;
+		        	case "exit":
+		        		break;
 		        	default:
-		        		 throw new IllegalArgumentException();
+		        		 System.out.println("Problem with the insreted query. Please check your syntax");
             	}
         }
         scan.close();

@@ -1,6 +1,5 @@
 import java.io.*;
 import java.sql.SQLException;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.FileHandler;
@@ -14,22 +13,22 @@ public class projectMain {
     public static void main(String[] args) throws FileNotFoundException{
     	//loading the country&nationality file
         Properties prop = new Properties();
-        Hashtable<String, String> originHelper = new Hashtable<String, String>();;
+ 
         FileInputStream fstream;
         DataInputStream in;
         try{
     		fstream = new FileInputStream("country&nationality.txt");
     		in = new DataInputStream(fstream);
         	prop.load(in);
-
-        	for (Object key : prop.keySet()) {
-        		originHelper.put((String)prop.get(key), (String)key);
-        	}
         	
-        } catch (IOException e){
-            System.out.println("Could not read file "+"country&nationality.txt");
-            return;
-        }
+    
+  
+        	
+	    	} catch (IOException e){
+	        System.out.println("Could not read file "+"country&nationality.txt");
+	        return;
+	    	}
+
         
         try {
 			in.close();
@@ -44,7 +43,7 @@ public class projectMain {
         } catch (IOException ex){
             System.out.println("could not create log file wdm.log\n");
         }
-        DB db = new DB(new TextParser(args),originHelper);
+        DB db = new DB(new TextParser(args),prop);
         boolean ret = db.initDB();
         if(ret) System.out.println("The DB and tables were created\n");
         else  System.out.println("something went wrong, please check the log\n");
@@ -83,7 +82,7 @@ public class projectMain {
         }
 
 
-        Iterator<Person> itrp = db.parser.personVec.iterator();
+        /*Iterator<Person> itrp = db.parser.personVec.iterator();
         int k=1;
         while(itrp.hasNext())
         {
@@ -101,7 +100,7 @@ public class projectMain {
         	System.out.println(r+". "+art.name+" "+art.type+" " +art.nationality+" "+art.genre);
         	r++;
         	
-        }
+        }*/
     }
 }
 
