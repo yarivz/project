@@ -1,7 +1,7 @@
 'Afghan' = 'Afghanistan'
 'Albanian' = 'Albania'
 'Algerian' = 'Algeria'
-'American' = 'USA'
+'American' = 'United States'
 'Angolan' = 'Angola'
 'Argentinian' = 'Argentina'
 'Australian' = 'Australia'

@@ -61,6 +61,7 @@ public class queryScanner{
             	
             }
            
+            try{
             	switch(scase)
             	{
 		        	case "when were":
@@ -82,13 +83,19 @@ public class queryScanner{
 		        		db.query6(query);
 		        		break;
 		        	case "country":
-		        		db.query7(query);
+		        		db.query7(query);		
 		        		break;
 		        	case "exit":
 		        		break;
 		        	default:
 		        		 System.out.println("Problem with the insreted query. Please check your syntax");
             	}
+            }
+            	catch(RuntimeException ex)
+            	{
+		        	System.out.println("Problem with the insreted query. Please check your syntax");
+		        }
+            	
         }
         scan.close();
     }

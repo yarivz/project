@@ -146,19 +146,20 @@ public class TextParser {
     
     public void extractFullArtist(String value) throws IOException
     {
-    	//int counter = 1;
 		if(value.contains("{{Infobox musical artist"))
 		{
-			musicalArtist artist = new musicalArtist();		// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
-			int j = value.indexOf('(');
+			musicalArtist artist = new musicalArtist();
+			// string manipulation to get artist's name
+			int j = value.indexOf('(');		
 			int k = value.indexOf('\n');
 			if(j!=-1 && j<k)
-				artist.name = "'"+value.substring(0,j-1)+"'";
+			{
+				artist.name = "'"+value.substring(0,j-1).replaceAll("'", "")+"'";
+			}
 			else
-				artist.name = "'"+value.substring(0,k)+"'";
-			//System.out.print(counter+". "+artist.name+" ");
-			//counter++;
-			
+				artist.name = "'"+value.substring(0,k).replaceAll("'", "")+"'";
+
+			// all the patterns i'm going to look for in the piece of data
 			Pattern background = Pattern.compile("Background.+?\\\n");
 			Matcher mBackground = background.matcher(value);
 			Pattern genre = Pattern.compile("Genre.+?\\]");
@@ -166,35 +167,37 @@ public class TextParser {
 			Pattern nation = Pattern.compile(".*?( is| was| were).*?\\[\\[[A-Z].*?\\|[A-Z][^\\s]*?\\]\\]");
 			Matcher mNation = nation.matcher(value);
 
-            if(mBackground.find())
+            if(mBackground.find())	//searching for artist's type
 			{
 				if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
 				{
 					artist.type = "'singer'";
 					artist.prType = 0.94;			// in this heuristic, probability for type is 0.94 (according to manual sampling)
-					//System.out.print(artist.type+" ");
 					if(mNation.find())
 					{
 						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
 						artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
-						//System.out.print(artist.nationality+" ");
 					}
+					else
+						artist.prNationality = 0.5;		// the opposite probability
 				}
 				else if(mBackground.group(0).contains("band") || mBackground.group(0).contains("Band"))
 				{
 					artist.type = "'band'";
 					artist.prType = 0.94;		// in this heuristic, probability for type is 0.94 (according to manual sampling)
-					//System.out.print(artist.type+" ");
 					if(mNation.find())
 					{
 						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
 						artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
-						//System.out.print(artist.nationality+" ");
 					}
+					else
+						artist.prNationality = 0.5;		// the opposite probability
 				}
 			}
+            else
+            	artist.prType = 0.06;					// the opposite probability
 			
-			if(mGenre.find())
+			if(mGenre.find())	//searching for artist's genre
 			{
 				int i = mGenre.group(0).indexOf('|');
 				if(i!=-1)
@@ -207,42 +210,18 @@ public class TextParser {
 					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
 					artist.genre = "'"+mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase()+"'";
 				}
-				//System.out.println(artist.genre);
 			}
 			else
-				//System.out.println("");
+				artist.prGenre = 0.04;			// the opposite probability
 
 			artistVec.add(artist);			// adding the new artist to our artist vector
-		 }
-		  
-		 /*while ((strLine = br.readLine()) != null)
-		 {
-			 Pattern pattern1 = Pattern.compile("'{3}[a-zA-Z ]{1,}'{3}");
-			 Pattern pattern2 = Pattern.compile("\\[\\[([a-zA-Z ]+?)\\]\\]");
-			 Matcher matcher1 = pattern1.matcher(strLine);
-			 Matcher matcher2 = pattern2.matcher(strLine);
-			
-			if(strLine.contains("musican") || strLine.contains("singer"))
-			{
-				musicalArtist artist = new musicalArtist();
-				while (matcher1.find()) 
-				{
-					//System.out.println(matcher1.group(0));
-					artist.name = matcher1.group(0).substring(3, matcher1.group(0).length()-3);
-					//System.out.println(artist.name);
-					artist.type = "singer";
-					vec2.add(artist);
-				}
-			} 
-		 }*/	 
+		 }	 
 	}
     
     public void extractPosArtist(String value, String data) throws IOException
-    {
-  	  //int i=1;
-  	  //int a=1;
-  	 
+    {  	 
 	  String altValue = value;
+	// string manipulation to get artist's name
 	  while(altValue.indexOf(" ")!=-1)
 	  {
 		  int index = altValue.indexOf(" ");
@@ -251,26 +230,26 @@ public class TextParser {
 	 
 	  musicalArtist art = new musicalArtist();
 	  String strSinger = altValue+"[^\\.]+?"+"(is/VBZ|was/VBD)[^\\.]+?(singer/NN|musician/NN)";
-	  Pattern singer = Pattern.compile(strSinger);
+	  Pattern singer = Pattern.compile(strSinger);		// pattern to find a singer
 	  Matcher mSinger = singer.matcher(data);
-	  if (mSinger.find()) 
+	  if (mSinger.find()) 								// searching for a singer
 	  {
-		art.name = "'"+value+"'";   			// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
+		art.name = "'"+value.replaceAll("'", "")+"'";  
 		art.type = "'singer'";
 		art.prType = 0.96;				// in this heuristic, probability for type is 0.96 (according to manual sampling)
-		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
+		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");		// pattern to find a singer's nationality
 		Matcher mNation = nation.matcher(mSinger.group(0));
-		if(mNation.find())
+		if(mNation.find())												// searching for singer's nationality
 		{
 			art.prNationality = 0.62;	// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
 			art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
-			//System.out.println(a+". "+mNation.group(0));
-			//a++;
 		}
-		
+		else
+			art.prNationality = 0.38;		// the opposite probability
+		// pattern for singer's genre
 		Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (singer/NN|musician/NN)");
 		Matcher mGenre = genre.matcher(mSinger.group(0));
-		if(mGenre.find())
+		if(mGenre.find())			// searching for a band's genre
 		{
 			int index = mGenre.group(0).lastIndexOf(' ');
 			String gen = mGenre.group(0).substring(1,index).toLowerCase();
@@ -286,36 +265,32 @@ public class TextParser {
 			}
 			art.prGenre = 0.44;				// in this heuristic, probability for genre is 0.44 (according to manual sampling)
 			art.genre = "'"+gen+"'";
-			//System.out.println(a+". "+art.genre);
-			//a++;
 		}
-		
-	  	//System.out.println(i+". "+value);
-	    //System.out.println(mSinger.group(0));
-	  	//i++;
+		else
+			art.prGenre = 0.56;			// the opposite probability
 	  }
 	  
 	  String strBand = altValue+"[^\\.]+?"+"(is/VBZ|were/VBD|was/VBD)[^\\.]+?( band/NN)";
-	  Pattern band = Pattern.compile(strBand);
+	  Pattern band = Pattern.compile(strBand);		// pattern to find a band
 	  Matcher mBand = band.matcher(data);
-	  if (mBand.find()) 
+	  if (mBand.find()) 							// searching for a band
 	  {
-		art.name = "'"+value+"'";					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
+		art.name = "'"+value.replaceAll("'", "")+"'";					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
 		art.type = "'band'";
 		art.prType = 0.96;					// in this heuristic, probability for type is 0.96 (according to manual sampling)
-		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");
+		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");		// pattern to find a band's nationality
 		Matcher mNation = nation.matcher(mBand.group(0));
-		if(mNation.find())
+		if(mNation.find())		// searching for band's nationality
 		{
 			art.prNationality = 0.62;		// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
 			art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
-			//System.out.println(a+". "+mNation.group(0));
-			//a++;
 		}
-		
+		else
+			art.prNationality = 0.38;		// the opposite probability
+		// pattern for singer's genre
 		Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (band/NN)");
 		Matcher mGenre = genre.matcher(mBand.group(0));
-		if(mGenre.find())
+		if(mGenre.find())		// searching for a band's genre
 		{
 			int index = mGenre.group(0).lastIndexOf(' ');
 			String gen = mGenre.group(0).substring(1,index).toLowerCase();
@@ -331,23 +306,85 @@ public class TextParser {
 			}
 			art.prGenre = 0.44;					// in this heuristic, probability for genre is 0.44 (according to manual sampling)
 			art.genre = "'"+gen+"'";
-			//System.out.println(a+". "+art.genre);
-			//a++;
 		}
-		
-	  	//System.out.println(i+". "+value);
-	    //System.out.println(mBand.group(0));
-	  	//i++;
+		else
+			art.prGenre = 0.56;					// the opposite probability
 	  }
 	  
 	  if(!art.name.equals("'NULL'"))		//search if artist is already in the artists vector
 	  {
 		 int index = artistVec.indexOf(art);
 		 if(index!=-1)
-		 {
-			 musicalArtist old = artistVec.elementAt(index); // if artist already exist we'll check if he has at least one different property
-			 if(!art.genre.equals(old.genre) || !art.nationality.equals(old.nationality) || !art.type.equals(old.type))
-				 artistVec.add(art);
+		 {//  if artist already exist we'll check if we can update the new or old valeus of him
+			 musicalArtist old = artistVec.elementAt(index);
+			 boolean flag = false;
+			 
+			 // checking if we can update genre
+			 if(!art.genre.equals(old.genre))
+			 {
+				 if(old.genre.equals("'NULL'") && !art.genre.equals("'NULL'"))
+				 {
+					 old.genre = art.genre;
+					 old.prGenre = art.prGenre;
+				 }
+				 else if (art.genre.equals("'NULL'") && !old.genre.equals("'NULL'"))
+				 {
+					 art.genre = old.genre;
+					 art.prGenre = old.prGenre;
+				 }
+				 else
+					 flag = true;
+			 }
+			 else
+			 {
+				 art.prGenre = old.prGenre = Math.max(old.prGenre, art.prGenre);
+			 }
+			 
+			// checking if we can update nationality
+			 if(!art.nationality.equals(old.nationality))
+			 {
+				 if(old.nationality.equals("'NULL'") && !art.nationality.equals("'NULL'"))
+				 {
+					 old.nationality = art.nationality;
+					 old.prNationality = art.prNationality;
+				 }
+				 else if (art.nationality.equals("'NULL'") && !old.nationality.equals("'NULL'"))
+				 {
+					 art.nationality = old.nationality;
+					 art.prNationality = old.prNationality;
+				 }
+				 else
+					 flag = true;
+			 }
+			 else
+			 {
+				 art.prNationality = old.prNationality = Math.max(old.prNationality, art.prNationality);
+			 }
+			 
+			 // checking if we can update type
+			 if(!art.type.equals(old.type))
+			 {
+				 if(old.type.equals("'NULL'") && !art.type.equals("'NULL'"))
+				 {
+					 old.type = art.type;
+					 old.prType = art.prType;
+				 }
+				 else if (art.type.equals("'NULL'") && !old.type.equals("'NULL'"))
+				 {
+					 art.type = old.type;
+					 art.prType = old.prType;
+				 }
+				 else
+					 flag = true;
+			 }
+			 else
+			 {
+				 art.prType = old.prType = Math.max(old.prType, art.prType);
+			 }
+			 
+			 
+			 if(flag)
+			 	artistVec.add(art);
 		 }
 		 else
 			 artistVec.add(art);
@@ -432,7 +469,7 @@ public class TextParser {
         {
             str= mat.group();
             if (name.reset(value).find()){
-                pname = name.group().substring(name.group().indexOf(nameLocation)).replaceAll(nameCleanup,"").trim(); //extract Person name
+                pname = name.group().substring(name.group().indexOf(nameLocation)).replaceAll(nameCleanup,"").trim().replaceAll("'", ""); //extract Person name
                 if(!pname.isEmpty()&&!pname.contains("iography")){
                     if(data.reset(str).find(str.indexOf(dataLocation))){
                         switch(FLAG){  //FLAG=1 - Birth Year, FLAG=2 - Death Year
@@ -461,7 +498,7 @@ public class TextParser {
             str= mat.group();
             int k = value.indexOf('\n');
             int j = value.indexOf(dataLocation);
-            pname = value.substring(0,k).replaceAll(nameCleanup,"").trim();
+            pname = value.substring(0,k).replaceAll(nameCleanup,"").trim().replaceAll("'", "");
             if(!pname.isEmpty()&&!pname.contains("iography")){   //filtering out biography values
                 if(data.reset(value).find(j)){
                     switch(FLAG){
@@ -513,7 +550,7 @@ public class TextParser {
         if (mat.find())         //if a match to the general pattern of name+data is found, extract them
         {
             str= mat.group();
-            pname = name.trim();
+            pname = name.trim().replaceAll("'", "");
             if(!pname.isEmpty()){ //if a name was extracted
                 if(data.reset(str).find(str.indexOf(dataLocation))){
                     switch(FLAG){
@@ -561,7 +598,7 @@ public class TextParser {
         {
             int k = value.indexOf('\n');
             int j = value.indexOf(dataLocation);
-            pname =value.substring(0,k).trim();
+            pname =value.substring(0,k).trim().replaceAll("'", "");
             if(!pname.isEmpty()){
                 if(data.reset(value).find(j)){
                     pdata = data.group().replaceAll(dataCleanup,"").trim();

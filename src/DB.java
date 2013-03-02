@@ -19,16 +19,18 @@ public class DB {
     static final String url = "jdbc:mysql://localhost:3306/";
     static final String dbName = "wdm";
     static final String createTablePersons = "CREATE TABLE Persons " +
-            "(Name VARCHAR(255) not NULL," +
+    		"(Ind INT not NULL AUTO_INCREMENT," +
+            "Name VARCHAR(255) not NULL," +
             "BornIn INT," +
         	"BornIn_probability DOUBLE," + 
             "DiedIn INT," +
         	"DiedIn_probability DOUBLE," +
             "Profession VARCHAR(255)," +
         	"Profession_probability DOUBLE," + 
-            "PRIMARY KEY (Name))";
+            "PRIMARY KEY (Ind))";
     static final String createTableMusicians = "CREATE TABLE Musicians " +
-            "(Name VARCHAR(255) not NULL," +
+    		"(Ind INT not NULL AUTO_INCREMENT," +
+            "Name VARCHAR(255) not NULL," +
             "Type VARCHAR(255)," +
         	"Type_probability DOUBLE," + 
             "Nationality VARCHAR(255)," +
@@ -36,12 +38,13 @@ public class DB {
         	"Origin VARCHAR(255)," +
             "Genre VARCHAR(255)," +
         	"Genre_probability DOUBLE," + 
-            "PRIMARY KEY (Name))";
+            "PRIMARY KEY (Ind))";
     static final String createTableCountries = "CREATE TABLE Countries " +
-            "(Name VARCHAR(255) not NULL," +
+    		"(Ind INT not NULL AUTO_INCREMENT," +
+    		"Name VARCHAR(255) not NULL," +
             "Population INT," +
             "Population_probability DOUBLE," +
-            "PRIMARY KEY (Name))";
+            "PRIMARY KEY (Ind))";
 
     public DB(TextParser parser, Properties prop)
     {
@@ -89,11 +92,13 @@ public class DB {
     }
     
     public void populateDB(){
-    	/*Person haim = new Person("'haim'","'1989'",1,"'2050'",1,"'singer'",0.5);
+    	Person haim = new Person("'haim'","'1989'",0.9,"'2050'",1,"'singer'",0.5);
     	parser.personVec.add(haim);
-    	musicalArtist art = new musicalArtist("'haim'","'pop'","'singer'","'Israeli'");
+    	Person haim2 = new Person("'haim'","'1989'",1,"'2050'",1,"'singer'",0.7);
+    	parser.personVec.add(haim2);
+    	musicalArtist art = new musicalArtist("'haim'","'pop'","'singer'","'English'");
     	parser.artistVec.add(art);
-    	Country israel = new Country("'Israel'","'1000'",0.5);
+    	Country israel = new Country("'England'","'1000'",0.5);
     	parser.countryVec.add(israel);
     	Country spain = new Country("'Spain'","'2000'",0.9);
     	parser.countryVec.add(spain);
@@ -103,7 +108,7 @@ public class DB {
     	parser.countryVec.add(france);
     	Country egypt = new Country("'Egypt'","'7000'",0.15);
     	parser.countryVec.add(egypt);
-    	*/
+    	
     	
     	Iterator<Person> itrp = parser.personVec.iterator();
     	Iterator<musicalArtist> itrm = parser.artistVec.iterator();
@@ -113,7 +118,7 @@ public class DB {
     	{  		
     		Person person = itrp.next();
 			try {
-	            st.executeUpdate("INSERT INTO Persons VALUES ("+person.name+","+person.bornIn+",'"+person.prBornIn+"',"+person.diedIn+",'"+person.prDiedIn+"',"+person.profession+",'"+person.prProf+"')");
+	            st.executeUpdate("INSERT INTO Persons VALUES ('0',"+person.name+","+person.bornIn+",'"+person.prBornIn+"',"+person.diedIn+",'"+person.prDiedIn+"',"+person.profession+",'"+person.prProf+"')");
 			} catch (SQLException ex) {
 				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
@@ -125,7 +130,7 @@ public class DB {
     		musicalArtist artist = itrm.next();
     		String origin = prop.getProperty(artist.nationality);
     		 try {
-	            st.executeUpdate("INSERT INTO Musicians VALUES ("+artist.name+","+artist.type+",'"+artist.prType+"',"+artist.nationality+",'"+artist.prNationality+"',"+origin+","+artist.genre+",'"+artist.prGenre+"')");
+	            st.executeUpdate("INSERT INTO Musicians VALUES ('0',"+artist.name+","+artist.type+",'"+artist.prType+"',"+artist.nationality+",'"+artist.prNationality+"',"+origin+","+artist.genre+",'"+artist.prGenre+"')");
 			} catch (SQLException ex) {
 				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
@@ -136,7 +141,7 @@ public class DB {
     	{
     		Country country = itrc.next();
     		 try {
-	            st.executeUpdate("INSERT INTO Countries VALUES ("+country.name+","+country.population+",'"+country.prPopulation+"')");
+	            st.executeUpdate("INSERT INTO Countries VALUES ('0',"+country.name+","+country.population+",'"+country.prPopulation+"')");
 			} catch (SQLException ex) {
 				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
@@ -150,7 +155,7 @@ public class DB {
     public void query1(String query)
     {
     	 try {
-    		  ResultSet rs = st.executeQuery("SELECT DISTINCT BornIn, BornIn_probability FROM Persons WHERE Name = '"+query.subSequence(10, query.lastIndexOf(' '))+"' AND BornIn IS NOT NULL;");
+    		  ResultSet rs = st.executeQuery("SELECT DISTINCT BornIn, BornIn_probability FROM Persons WHERE Name = '"+query.subSequence(10, query.lastIndexOf(' '))+"' AND BornIn IS NOT NULL ORDER BY BornIn_probability DESC;");
     		 
 	          while(rs.next())
 	          {
@@ -185,7 +190,7 @@ public class DB {
     public void query3(String query)
     {
     	 try {
-   		  ResultSet rs = st.executeQuery("SELECT DISTINCT DiedIn, DiedIn_probability FROM Persons WHERE Name = '"+query.subSequence(9, query.lastIndexOf(' '))+"' AND DiedIn IS NOT NULL;");
+   		  ResultSet rs = st.executeQuery("SELECT DISTINCT DiedIn, DiedIn_probability FROM Persons WHERE Name = '"+query.subSequence(9, query.lastIndexOf(' '))+"' AND DiedIn IS NOT NULL ORDER BY DiedIn_probability DESC;");
 	          while(rs.next())
 	          {
 	        	  System.out.println(rs.getInt("DiedIn")+" Probability: "+rs.getDouble("DiedIn_probability"));
@@ -249,7 +254,7 @@ public class DB {
     {
     	try {
     		int decade = Integer.parseInt(query.substring(42, query.lastIndexOf(' ')));
-    		ResultSet rs = st.executeQuery("SELECT Musicians.Name, BornIn_probability FROM Persons JOIN Musicians ON Persons.name = Musicians.name WHERE BornIn BETWEEN "+decade+" AND "+(decade+9)+";");
+    		ResultSet rs = st.executeQuery("SELECT Musicians.Name, BornIn_probability FROM Persons JOIN Musicians ON Persons.name = Musicians.name WHERE BornIn BETWEEN "+decade+" AND "+(decade+9)+" ORDER BY BornIn_probability DESC;");
 	        while(rs.next())
 	        {
 	        	System.out.println(rs.getString("Name")+" Probability: "+rs.getDouble("BornIn_probability"));
@@ -263,10 +268,11 @@ public class DB {
 			}
     }
     
-    public void query7(String query)
+    public void query7(String query) throws RuntimeException
     {
     	try {
-   		  ResultSet rs = st.executeQuery("SELECT Musicians.Name, Nationality_probability FROM Musicians JOIN Countries ON Musicians.Origin = Countries.name WHERE Musicians.Origin = '"+query.substring(46)+"';");
+    		System.out.println(query.substring(46));
+   		  ResultSet rs = st.executeQuery("SELECT Musicians.Name, Nationality_probability FROM Musicians JOIN Countries ON Musicians.Origin = Countries.name WHERE Musicians.Origin = '"+query.substring(46)+"' ORDER BY Nationality_probability DESC;");
 	          while(rs.next())
 	          {
 	        	  System.out.println(rs.getString("Name")+" Probability: "+rs.getDouble("Nationality_probability"));
