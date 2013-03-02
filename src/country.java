@@ -1,8 +1,8 @@
 public class Country {
 	
-	String name;
-	String population;
-	double prPopulation;
+	String name;           //Country's name
+	String population;     //Country's population
+	double prPopulation;   //probability of Country's population correctness
 	
 	public Country(String name, String population, double prPopulation)
 	{
@@ -10,15 +10,8 @@ public class Country {
 		this.population = population;
 		this.prPopulation = prPopulation;
 	}
-
-	public Country() 
-	{
-		this.name = "";
-		this.population = "unknown";
-		this.prPopulation = 0;
-	}
-	
-	public boolean equals(Country other)
+    //compare Country objects, by comparing their name values
+    public boolean equals(Country other)
 	{
 		return this.name.equals(other.name);
 	}

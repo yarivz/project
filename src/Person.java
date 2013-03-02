@@ -1,14 +1,14 @@
 import java.util.Vector;
 
-public class Person implements Comparable{
+public class Person {
 
-    String name;
-    String bornIn;
-    double prBornIn;
-    String diedIn;
-    double prDiedIn;
-    String profession;
-    double prProf;
+    String name;       //Person's name - assumed unique value
+    String bornIn;     //Person's year of birth  (Y.O.B)
+    double prBornIn;   //Person's probability of Y.O.B correctness
+    String diedIn;     //Person's year of death  (Y.O.D)
+    double prDiedIn;   //Person's probability of Y.O.D correctness
+    String profession; //Person's profession
+    double prProf;     //Person's probability of profession correctness
 
     public Person(String name, String bornInYear, double probBornIn, String diedInYear, double probDiedIn, String prof, double probProf){
         this.name = name;
@@ -20,29 +20,18 @@ public class Person implements Comparable{
         prProf = probProf;
     }
 
-    public int compareTo(Object o){
-        if (!(o instanceof Person)){
-            return 1;
-        }
-        if (((Person)o).name.equals(this.name)|| isContained(((Person)o).name,this.name)){
-            return 0;
-        } else {
-            return 1;
-        }
+    //compare Person objects, by comparing their name values
+    public boolean equals(Person p){
+       return this.name.equals(p.name);
     }
-
-    public boolean equals(Object o){
-      if (o!=null && o instanceof Person) return name.equals(((Person)o).name);
-      else return false;
-    }
-
+    //String representation of Person
     public String toString(){
-        return name+':'+bornIn+':'+diedIn+':'+profession+'\n';
+        return name+", born:"+bornIn+", died:"+diedIn+", profession:"+profession+'\n';
     }
 
-    public boolean isContained(String a,String b){
-        if (a.contains(" ") && b.contains(" ")){
-            String[] as = a.split(" ");
+    public boolean isContained(String a,String b){     //check whether two people are the same person,
+        if (a.contains(" ") && b.contains(" ")){       //when one has a different name, but it contains in it the other's name
+            String[] as = a.split(" ");                //like first-middle-last name VS. first-last name, for example
             boolean ansa=true;
             for(String s:as){
                 if(!b.contains(s)){

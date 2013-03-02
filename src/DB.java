@@ -15,32 +15,32 @@ public class DB {
 	Connection con = null, con2 = null;
     Statement st = null;
 
-    static final String user = "root",password = "fixmixboom4";
+    static final String user = "admin",password = "Password1";
     static final String url = "jdbc:mysql://localhost:3306/";
     static final String dbName = "wdm";
     static final String createTablePersons = "CREATE TABLE Persons " +
-            "Name VARCHAR(255) not NULL," +
+            "(Name VARCHAR(255) not NULL," +
             "BornIn INT," +
         	"BornIn_probability DOUBLE," + 
             "DiedIn INT," +
-        	"DienIn_probability DOUBLE," + 
+        	"DiedIn_probability DOUBLE," +
             "Profession VARCHAR(255)," +
         	"Profession_probability DOUBLE," + 
             "PRIMARY KEY (Name))";
     static final String createTableMusicians = "CREATE TABLE Musicians " +
-            "Name VARCHAR(255) not NULL," +
+            "(Name VARCHAR(255) not NULL," +
             "Type VARCHAR(255)," +
         	"Type_probability DOUBLE," + 
             "Nationality VARCHAR(255)," +
-        	"Nationality_probability DOUBLE" + 
+        	"Nationality_probability DOUBLE," +
         	"Origin VARCHAR(255)," +
             "Genre VARCHAR(255)," +
         	"Genre_probability DOUBLE," + 
             "PRIMARY KEY (Name))";
     static final String createTableCountries = "CREATE TABLE Countries " +
-            "Name VARCHAR(255) not NULL," +
+            "(Name VARCHAR(255) not NULL," +
             "Population INT," +
-            "Popoulation_probability DOUBLE," + 
+            "Population_probability DOUBLE," +
             "PRIMARY KEY (Name))";
 
     public DB(TextParser parser, Hashtable<String, String> originHelper)
