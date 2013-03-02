@@ -143,252 +143,252 @@ public class TextParser {
      		 extractPosPerson(value,data);
      	  }
     }
-    
+
     public void extractFullArtist(String value) throws IOException
     {
-		if(value.contains("{{Infobox musical artist"))
-		{
-			musicalArtist artist = new musicalArtist();
-			// string manipulation to get artist's name
-			int j = value.indexOf('(');		
-			int k = value.indexOf('\n');
-			if(j!=-1 && j<k)
-			{
-				artist.name = "'"+value.substring(0,j-1).replaceAll("'", "")+"'";
-			}
-			else
-				artist.name = "'"+value.substring(0,k).replaceAll("'", "")+"'";
+        if(value.contains("{{Infobox musical artist"))
+        {
+            musicalArtist artist = new musicalArtist();
+            // string manipulation to get artist's name
+            int j = value.indexOf('(');
+            int k = value.indexOf('\n');
+            if(j!=-1 && j<k)
+            {
+                artist.name = "'"+value.substring(0,j-1).replaceAll("'", "")+"'";
+            }
+            else
+                artist.name = "'"+value.substring(0,k).replaceAll("'", "")+"'";
 
-			// all the patterns i'm going to look for in the piece of data
-			Pattern background = Pattern.compile("Background.+?\\\n");
-			Matcher mBackground = background.matcher(value);
-			Pattern genre = Pattern.compile("Genre.+?\\]");
-			Matcher mGenre = genre.matcher(value);
-			Pattern nation = Pattern.compile(".*?( is| was| were).*?\\[\\[[A-Z].*?\\|[A-Z][^\\s]*?\\]\\]");
-			Matcher mNation = nation.matcher(value);
+            // all the patterns i'm going to look for in the piece of data
+            Pattern background = Pattern.compile("Background.+?\\\n");
+            Matcher mBackground = background.matcher(value);
+            Pattern genre = Pattern.compile("Genre.+?\\]");
+            Matcher mGenre = genre.matcher(value);
+            Pattern nation = Pattern.compile(".*?( is| was| were).*?\\[\\[[A-Z].*?\\|[A-Z][^\\s]*?\\]\\]");
+            Matcher mNation = nation.matcher(value);
 
             if(mBackground.find())	//searching for artist's type
-			{
-				if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
-				{
-					artist.type = "'singer'";
-					artist.prType = 0.94;			// in this heuristic, probability for type is 0.94 (according to manual sampling)
-					if(mNation.find())
-					{
-						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
-						artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
-					}
-					else
-						artist.prNationality = 0.5;		// the opposite probability
-				}
-				else if(mBackground.group(0).contains("band") || mBackground.group(0).contains("Band"))
-				{
-					artist.type = "'band'";
-					artist.prType = 0.94;		// in this heuristic, probability for type is 0.94 (according to manual sampling)
-					if(mNation.find())
-					{
-						artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
-						artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
-					}
-					else
-						artist.prNationality = 0.5;		// the opposite probability
-				}
-			}
+            {
+                if(mBackground.group(0).contains("singer") || mBackground.group(0).contains("Singer"))
+                {
+                    artist.type = "'singer'";
+                    artist.prType = 0.94;			// in this heuristic, probability for type is 0.94 (according to manual sampling)
+                    if(mNation.find())
+                    {
+                        artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
+                        artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
+                    }
+                    else
+                        artist.prNationality = 0.5;		// the opposite probability
+                }
+                else if(mBackground.group(0).contains("band") || mBackground.group(0).contains("Band"))
+                {
+                    artist.type = "'band'";
+                    artist.prType = 0.94;		// in this heuristic, probability for type is 0.94 (according to manual sampling)
+                    if(mNation.find())
+                    {
+                        artist.prNationality = 0.5;	// in this heuristic, probability for nationality is 0.5 (according to manual sampling)
+                        artist.nationality = "'"+mNation.group(0).substring(mNation.group(0).lastIndexOf('|')+1,mNation.group(0).lastIndexOf(']')-1)+"'";
+                    }
+                    else
+                        artist.prNationality = 0.5;		// the opposite probability
+                }
+            }
             else
-            	artist.prType = 0.06;					// the opposite probability
-			
-			if(mGenre.find())	//searching for artist's genre
-			{
-				int i = mGenre.group(0).indexOf('|');
-				if(i!=-1)
-				{
-					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
-					artist.genre = "'"+mGenre.group(0).substring(i+1, mGenre.group(0).length()-1).toLowerCase()+"'";
-				}
-				else
-				{
-					artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
-					artist.genre = "'"+mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase()+"'";
-				}
-			}
-			else
-				artist.prGenre = 0.04;			// the opposite probability
+                artist.prType = 0.06;					// the opposite probability
 
-			artistVec.add(artist);			// adding the new artist to our artist vector
-		 }	 
-	}
-    
+            if(mGenre.find())	//searching for artist's genre
+            {
+                int i = mGenre.group(0).indexOf('|');
+                if(i!=-1)
+                {
+                    artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
+                    artist.genre = "'"+mGenre.group(0).substring(i+1, mGenre.group(0).length()-1).toLowerCase()+"'";
+                }
+                else
+                {
+                    artist.prGenre = 0.96;		// in this heuristic, probability for genre is 0.96 (according to manual sampling)
+                    artist.genre = "'"+mGenre.group(0).substring(mGenre.group(0).indexOf('[')+2, mGenre.group(0).length()-1).toLowerCase()+"'";
+                }
+            }
+            else
+                artist.prGenre = 0.04;			// the opposite probability
+
+            artistVec.add(artist);			// adding the new artist to our artist vector
+        }
+    }
+
     public void extractPosArtist(String value, String data) throws IOException
-    {  	 
-	  String altValue = value;
-	// string manipulation to get artist's name
-	  while(altValue.indexOf(" ")!=-1)
-	  {
-		  int index = altValue.indexOf(" ");
-		  altValue = altValue.substring(0, index)+"[^\\.]+?"+altValue.substring(index+1);
-	  }
-	 
-	  musicalArtist art = new musicalArtist();
-	  String strSinger = altValue+"[^\\.]+?"+"(is/VBZ|was/VBD)[^\\.]+?(singer/NN|musician/NN)";
-	  Pattern singer = Pattern.compile(strSinger);		// pattern to find a singer
-	  Matcher mSinger = singer.matcher(data);
-	  if (mSinger.find()) 								// searching for a singer
-	  {
-		art.name = "'"+value.replaceAll("'", "")+"'";  
-		art.type = "'singer'";
-		art.prType = 0.96;				// in this heuristic, probability for type is 0.96 (according to manual sampling)
-		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");		// pattern to find a singer's nationality
-		Matcher mNation = nation.matcher(mSinger.group(0));
-		if(mNation.find())												// searching for singer's nationality
-		{
-			art.prNationality = 0.62;	// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
-			art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
-		}
-		else
-			art.prNationality = 0.38;		// the opposite probability
-		// pattern for singer's genre
-		Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (singer/NN|musician/NN)");
-		Matcher mGenre = genre.matcher(mSinger.group(0));
-		if(mGenre.find())			// searching for a band's genre
-		{
-			int index = mGenre.group(0).lastIndexOf(' ');
-			String gen = mGenre.group(0).substring(1,index).toLowerCase();
-			
-			index = gen.indexOf('\\');
-			if(index!=-1)
-				gen = gen.substring(index+1);
-			
-			for(int j=0;j<gen.length();j++)
-			{
-				if(gen.charAt(j)=='/')
-					gen = gen.substring(0,j) + gen.substring(j+3);
-			}
-			art.prGenre = 0.44;				// in this heuristic, probability for genre is 0.44 (according to manual sampling)
-			art.genre = "'"+gen+"'";
-		}
-		else
-			art.prGenre = 0.56;			// the opposite probability
-	  }
-	  
-	  String strBand = altValue+"[^\\.]+?"+"(is/VBZ|were/VBD|was/VBD)[^\\.]+?( band/NN)";
-	  Pattern band = Pattern.compile(strBand);		// pattern to find a band
-	  Matcher mBand = band.matcher(data);
-	  if (mBand.find()) 							// searching for a band
-	  {
-		art.name = "'"+value.replaceAll("'", "")+"'";					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
-		art.type = "'band'";
-		art.prType = 0.96;					// in this heuristic, probability for type is 0.96 (according to manual sampling)
-		Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");		// pattern to find a band's nationality
-		Matcher mNation = nation.matcher(mBand.group(0));
-		if(mNation.find())		// searching for band's nationality
-		{
-			art.prNationality = 0.62;		// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
-			art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
-		}
-		else
-			art.prNationality = 0.38;		// the opposite probability
-		// pattern for singer's genre
-		Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (band/NN)");
-		Matcher mGenre = genre.matcher(mBand.group(0));
-		if(mGenre.find())		// searching for a band's genre
-		{
-			int index = mGenre.group(0).lastIndexOf(' ');
-			String gen = mGenre.group(0).substring(1,index).toLowerCase();
-			
-			index = gen.indexOf('\\');
-			if(index!=-1)
-				gen = gen.substring(index+2);
-			
-			for(int j=0;j<gen.length();j++)
-			{
-				if(gen.charAt(j)=='/')
-					gen = gen.substring(0,j) + gen.substring(j+3);
-			}
-			art.prGenre = 0.44;					// in this heuristic, probability for genre is 0.44 (according to manual sampling)
-			art.genre = "'"+gen+"'";
-		}
-		else
-			art.prGenre = 0.56;					// the opposite probability
-	  }
-	  
-	  if(!art.name.equals("'NULL'"))		//search if artist is already in the artists vector
-	  {
-		 int index = artistVec.indexOf(art);
-		 if(index!=-1)
-		 {//  if artist already exist we'll check if we can update the new or old valeus of him
-			 musicalArtist old = artistVec.elementAt(index);
-			 boolean flag = false;
-			 
-			 // checking if we can update genre
-			 if(!art.genre.equals(old.genre))
-			 {
-				 if(old.genre.equals("'NULL'") && !art.genre.equals("'NULL'"))
-				 {
-					 old.genre = art.genre;
-					 old.prGenre = art.prGenre;
-				 }
-				 else if (art.genre.equals("'NULL'") && !old.genre.equals("'NULL'"))
-				 {
-					 art.genre = old.genre;
-					 art.prGenre = old.prGenre;
-				 }
-				 else
-					 flag = true;
-			 }
-			 else
-			 {
-				 art.prGenre = old.prGenre = Math.max(old.prGenre, art.prGenre);
-			 }
-			 
-			// checking if we can update nationality
-			 if(!art.nationality.equals(old.nationality))
-			 {
-				 if(old.nationality.equals("'NULL'") && !art.nationality.equals("'NULL'"))
-				 {
-					 old.nationality = art.nationality;
-					 old.prNationality = art.prNationality;
-				 }
-				 else if (art.nationality.equals("'NULL'") && !old.nationality.equals("'NULL'"))
-				 {
-					 art.nationality = old.nationality;
-					 art.prNationality = old.prNationality;
-				 }
-				 else
-					 flag = true;
-			 }
-			 else
-			 {
-				 art.prNationality = old.prNationality = Math.max(old.prNationality, art.prNationality);
-			 }
-			 
-			 // checking if we can update type
-			 if(!art.type.equals(old.type))
-			 {
-				 if(old.type.equals("'NULL'") && !art.type.equals("'NULL'"))
-				 {
-					 old.type = art.type;
-					 old.prType = art.prType;
-				 }
-				 else if (art.type.equals("'NULL'") && !old.type.equals("'NULL'"))
-				 {
-					 art.type = old.type;
-					 art.prType = old.prType;
-				 }
-				 else
-					 flag = true;
-			 }
-			 else
-			 {
-				 art.prType = old.prType = Math.max(old.prType, art.prType);
-			 }
-			 
-			 
-			 if(flag)
-			 	artistVec.add(art);
-		 }
-		 else
-			 artistVec.add(art);
-	  }
+    {
+        String altValue = value;
+        // string manipulation to get artist's name
+        while(altValue.indexOf(" ")!=-1)
+        {
+            int index = altValue.indexOf(" ");
+            altValue = altValue.substring(0, index)+"[^\\.]+?"+altValue.substring(index+1);
+        }
+
+        musicalArtist art = new musicalArtist();
+        String strSinger = altValue+"[^\\.]+?"+"(is/VBZ|was/VBD)[^\\.]+?(singer/NN|musician/NN)";
+        Pattern singer = Pattern.compile(strSinger);		// pattern to find a singer
+        Matcher mSinger = singer.matcher(data);
+        if (mSinger.find()) 								// searching for a singer
+        {
+            art.name = "'"+value.replaceAll("'", "")+"'";
+            art.type = "'singer'";
+            art.prType = 0.96;				// in this heuristic, probability for type is 0.96 (according to manual sampling)
+            Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");		// pattern to find a singer's nationality
+            Matcher mNation = nation.matcher(mSinger.group(0));
+            if(mNation.find())												// searching for singer's nationality
+            {
+                art.prNationality = 0.62;	// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
+                art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
+            }
+            else
+                art.prNationality = 0.38;		// the opposite probability
+            // pattern for singer's genre
+            Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (singer/NN|musician/NN)");
+            Matcher mGenre = genre.matcher(mSinger.group(0));
+            if(mGenre.find())			// searching for a band's genre
+            {
+                int index = mGenre.group(0).lastIndexOf(' ');
+                String gen = mGenre.group(0).substring(1,index).toLowerCase();
+
+                index = gen.indexOf('\\');
+                if(index!=-1)
+                    gen = gen.substring(index+1);
+
+                for(int j=0;j<gen.length();j++)
+                {
+                    if(gen.charAt(j)=='/')
+                        gen = gen.substring(0,j) + gen.substring(j+3);
+                }
+                art.prGenre = 0.44;				// in this heuristic, probability for genre is 0.44 (according to manual sampling)
+                art.genre = "'"+gen+"'";
+            }
+            else
+                art.prGenre = 0.56;			// the opposite probability
+        }
+
+        String strBand = altValue+"[^\\.]+?"+"(is/VBZ|were/VBD|was/VBD)[^\\.]+?( band/NN)";
+        Pattern band = Pattern.compile(strBand);		// pattern to find a band
+        Matcher mBand = band.matcher(data);
+        if (mBand.find()) 							// searching for a band
+        {
+            art.name = "'"+value.replaceAll("'", "")+"'";					// after finding a an artist in this heuristic, his name get 0.99 probability (according to manual sampling)
+            art.type = "'band'";
+            art.prType = 0.96;					// in this heuristic, probability for type is 0.96 (according to manual sampling)
+            Pattern nation = Pattern.compile("([A-Z][a-zA-Z]+?/JJ)");		// pattern to find a band's nationality
+            Matcher mNation = nation.matcher(mBand.group(0));
+            if(mNation.find())		// searching for band's nationality
+            {
+                art.prNationality = 0.62;		// in this heuristic, probability for nationality is 0.62 (according to manual sampling)
+                art.nationality = "'"+mNation.group(0).substring(0, mNation.group(0).lastIndexOf('/'))+"'";
+            }
+            else
+                art.prNationality = 0.38;		// the opposite probability
+            // pattern for singer's genre
+            Pattern genre = Pattern.compile("( ([A-Za-z]|\\p{Punct})+?/NN)+? (band/NN)");
+            Matcher mGenre = genre.matcher(mBand.group(0));
+            if(mGenre.find())		// searching for a band's genre
+            {
+                int index = mGenre.group(0).lastIndexOf(' ');
+                String gen = mGenre.group(0).substring(1,index).toLowerCase();
+
+                index = gen.indexOf('\\');
+                if(index!=-1)
+                    gen = gen.substring(index+2);
+
+                for(int j=0;j<gen.length();j++)
+                {
+                    if(gen.charAt(j)=='/')
+                        gen = gen.substring(0,j) + gen.substring(j+3);
+                }
+                art.prGenre = 0.44;					// in this heuristic, probability for genre is 0.44 (according to manual sampling)
+                art.genre = "'"+gen+"'";
+            }
+            else
+                art.prGenre = 0.56;					// the opposite probability
+        }
+
+        if(!art.name.equals("'NULL'"))		//search if artist is already in the artists vector
+        {
+            int index = artistVec.indexOf(art);
+            if(index!=-1)
+            {//  if artist already exist we'll check if we can update the new or old valeus of him
+                musicalArtist old = artistVec.elementAt(index);
+                boolean flag = false;
+
+                // checking if we can update genre
+                if(!art.genre.equals(old.genre))
+                {
+                    if(old.genre.equals("'NULL'") && !art.genre.equals("'NULL'"))
+                    {
+                        old.genre = art.genre;
+                        old.prGenre = art.prGenre;
+                    }
+                    else if (art.genre.equals("'NULL'") && !old.genre.equals("'NULL'"))
+                    {
+                        art.genre = old.genre;
+                        art.prGenre = old.prGenre;
+                    }
+                    else
+                        flag = true;
+                }
+                else
+                {
+                    art.prGenre = old.prGenre = Math.max(old.prGenre, art.prGenre);
+                }
+
+                // checking if we can update nationality
+                if(!art.nationality.equals(old.nationality))
+                {
+                    if(old.nationality.equals("'NULL'") && !art.nationality.equals("'NULL'"))
+                    {
+                        old.nationality = art.nationality;
+                        old.prNationality = art.prNationality;
+                    }
+                    else if (art.nationality.equals("'NULL'") && !old.nationality.equals("'NULL'"))
+                    {
+                        art.nationality = old.nationality;
+                        art.prNationality = old.prNationality;
+                    }
+                    else
+                        flag = true;
+                }
+                else
+                {
+                    art.prNationality = old.prNationality = Math.max(old.prNationality, art.prNationality);
+                }
+
+                // checking if we can update type
+                if(!art.type.equals(old.type))
+                {
+                    if(old.type.equals("'NULL'") && !art.type.equals("'NULL'"))
+                    {
+                        old.type = art.type;
+                        old.prType = art.prType;
+                    }
+                    else if (art.type.equals("'NULL'") && !old.type.equals("'NULL'"))
+                    {
+                        art.type = old.type;
+                        art.prType = old.prType;
+                    }
+                    else
+                        flag = true;
+                }
+                else
+                {
+                    art.prType = old.prType = Math.max(old.prType, art.prType);
+                }
+
+
+                if(flag)
+                    artistVec.add(art);
+            }
+            else
+                artistVec.add(art);
+        }
     }
 
     public void extractFullPerson(String value) throws IOException
@@ -401,65 +401,76 @@ public class TextParser {
         @param nameLocation, nameCleanup, dataLocation, dataCleanup - auxiliary parameters for the clean extraction of name/data
         @param prHeuristic - the probability (confidence score) of this specific heuristic, calculated manually on a test-set
         */
-        matcherVar = bornInYearA1 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born" ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";prHeuristic=0.99;
-        runPersonFullHeuristics(value,1,prHeuristic);
 
-        matcherVar = bornInYearA2 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = ""    ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.97;
-        runPersonFullHeuristics(value,1,prHeuristic);
+       Person temp = new Person();
 
-        matcherVar = bornInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.58;
-        runPersonFullHeuristics(value,1,prHeuristic);
+        //Check if the value pattern is an Infobox
+        if (value.contains("{{Infobox")||value.contains("{{infobox")){
+            matcherVar = bornInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "irth";
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.99;
+            runPersonInfoboxFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = bornInYearB2 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.62;
-        runPersonFullHeuristics(value,1,prHeuristic);
+            matcherVar = diedInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "eath";
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";   prHeuristic=0.99;
+            runPersonInfoboxFullHeuristics(temp,value,2,prHeuristic);
 
-        matcherVar = bornInYearB3 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "b."    ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.65;
-        runPersonFullHeuristics(value,1,prHeuristic);
+            matcherVar = bornInInfobox ; dataVar = infoTypePattern ; nameLocation = "" ; dataLocation = "Infobox";
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^a-z A-Z]"; prHeuristic=0.99;
+            runPersonInfoboxFullHeuristics(temp,value,3,prHeuristic);
+        }
+        else  //look for the data in free text
+        {
+            matcherVar = bornInYearA1 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born" ;
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";prHeuristic=0.99;
+            runPersonFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = bornInYearB4 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = ""      ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.45;
-        runPersonFullHeuristics(value,1,prHeuristic);
+            matcherVar = bornInYearA2 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = ""    ;
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.97;
+            runPersonFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = diedInYearA1 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "died";
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.99;
-        runPersonFullHeuristics(value,2,prHeuristic);
+            matcherVar = diedInYearA1 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "died";
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.99;
+            runPersonFullHeuristics(temp,value,2,prHeuristic);
 
-        matcherVar = diedInYearA2 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "-" ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.97;
-        runPersonFullHeuristics(value,2,prHeuristic);
+            matcherVar = diedInYearA2 ; nameVar = nameA ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "-" ;
+            nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.97;
+            runPersonFullHeuristics(temp,value,2,prHeuristic);
 
-        matcherVar = diedInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "died";
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.64;
-        runPersonFullHeuristics(value,2,prHeuristic);
+            if(!temp.name.equals("'NULL'"))
+            {
+                matcherVar = bornInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.58;
+                runPersonFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = diedInYearB2 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "d." ;
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.65;
-        runPersonFullHeuristics(value,2,prHeuristic);
+                matcherVar = bornInYearB2 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "born"  ;
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.62;
+                runPersonFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = diedInYearB3 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "-";
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";  prHeuristic=0.44;
-        runPersonFullHeuristics(value,2,prHeuristic);
+                matcherVar = bornInYearB3 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "b."    ;
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.65;
+                runPersonFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = bornInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "irth";
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.99;
-        runPersonInfoboxFullHeuristics(value,1,prHeuristic);
+                matcherVar = bornInYearB4 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = ""      ;
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.45;
+                runPersonFullHeuristics(temp,value,1,prHeuristic);
 
-        matcherVar = diedInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "eath";
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";   prHeuristic=0.99;
-        runPersonInfoboxFullHeuristics(value,2,prHeuristic);
+                matcherVar = diedInYearB1 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "died";
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.64;
+                runPersonFullHeuristics(temp,value,2,prHeuristic);
 
-        matcherVar = bornInInfobox ; dataVar = infoTypePattern ; nameLocation = "" ; dataLocation = "Infobox";
-        nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^a-z A-Z]"; prHeuristic=0.99;
-        runPersonInfoboxFullHeuristics(value,3,prHeuristic);
+                matcherVar = diedInYearB2 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "d." ;
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]"; prHeuristic=0.65;
+                runPersonFullHeuristics(temp,value,2,prHeuristic);
 
+                matcherVar = diedInYearB3 ; nameVar = nameB ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "-";
+                nameCleanup = "[^a-z A-Z]"; dataCleanup = "[^0-9]";  prHeuristic=0.44;
+                runPersonFullHeuristics(temp,value,2,prHeuristic);
+            }
+        }
+        personVec.add(temp);
     }
 
-    public void runPersonFullHeuristics(String value,int FLAG,double prHeuristic)
+    public void runPersonFullHeuristics(Person temp, String value,int FLAG,double prHeuristic)
     {
         mat.usePattern(matcherVar).reset(value);     //set the matchers to the appropriate patterns
         name.usePattern(nameVar);
@@ -469,16 +480,16 @@ public class TextParser {
         {
             str= mat.group();
             if (name.reset(value).find()){
-                pname = name.group().substring(name.group().indexOf(nameLocation)).replaceAll(nameCleanup,"").trim().replaceAll("'", ""); //extract Person name
+                pname = name.group().substring(name.group().indexOf(nameLocation)).replaceAll(nameCleanup,"").trim(); //extract Person name
                 if(!pname.isEmpty()&&!pname.contains("iography")){
                     if(data.reset(str).find(str.indexOf(dataLocation))){
                         switch(FLAG){  //FLAG=1 - Birth Year, FLAG=2 - Death Year
                             case(BIRTH_YEAR):{
-                                createPerson1(pname,prHeuristic);
+                                createPerson1(temp, pname,prHeuristic);
                                 break;
                             }
                             case(DEATH_YEAR):{
-                                createPerson2(pname,prHeuristic);
+                                createPerson2(temp,pname,prHeuristic);
                                 break;
                             }
                         }
@@ -488,7 +499,7 @@ public class TextParser {
         }
     }
 
-    public void runPersonInfoboxFullHeuristics(String value, int FLAG,double prHeuristic)
+    public void runPersonInfoboxFullHeuristics(Person temp, String value, int FLAG,double prHeuristic)
     {    //This is the same principal as the runPersonFullHeuristics method, but specific for the Infobox pattern
         //with the necessary data parsing, here we do not need a name pattern since we take the first line of each value
         mat.usePattern(matcherVar).reset(value);
@@ -498,22 +509,22 @@ public class TextParser {
             str= mat.group();
             int k = value.indexOf('\n');
             int j = value.indexOf(dataLocation);
-            pname = value.substring(0,k).replaceAll(nameCleanup,"").trim().replaceAll("'", "");
+            pname = value.substring(0,k).replaceAll(nameCleanup,"").trim();
             if(!pname.isEmpty()&&!pname.contains("iography")){   //filtering out biography values
                 if(data.reset(value).find(j)){
                     switch(FLAG){
                         case(BIRTH_YEAR):{
-                            createPerson1(pname,prHeuristic);
+                            createPerson1(temp,pname,prHeuristic);
                             break;
                         }
                         case(DEATH_YEAR):{
-                            createPerson2(pname,prHeuristic);
+                            createPerson2(temp,pname,prHeuristic);
                             break;
                         }
                         case(PROFESSION):{
                             pdata = data.group().substring(data.group().indexOf("Infobox")+7).replaceAll(dataCleanup,"").toLowerCase().trim();
                             if(!pdata.equalsIgnoreCase("person")&&!pdata.contains("iography")){
-                                createPerson3(pname,pdata,prHeuristic);
+                                createPerson3(temp,pname,pdata,prHeuristic);
                             }
                             break;
                         }
@@ -533,40 +544,118 @@ public class TextParser {
         @param nameLocation, nameCleanup, dataLocation, dataCleanup - auxiliary parameters for the clean extraction of name/data
         @param prHeuristic - the probability (confidence score) of this specific heuristic, calculated manually on a test-set
         */
+
+        Person temp = new Person();
+
         matcherVar = personPOS ; dataVar = profPOS ; dataLocation = "/DT" ; dataCleanup = "/NN"; prHeuristic=0.79;
-        runPosHeuristics(value,data,3,prHeuristic);
+        runPosHeuristics(temp,value,data,3,prHeuristic);
 
         matcherVar = bornInPOS ; dataVar = yearPOS ; dataLocation = "/NNP" ; dataCleanup = "[^0-9]"; prHeuristic=0.96;
-        runPosHeuristics(value,data,1,prHeuristic);
+        runPosHeuristics(temp,value,data,1,prHeuristic);
 
         matcherVar = diedInPOS ; dataVar = yearPOS ; dataLocation = "-/:" ; dataCleanup = "[^0-9]"; prHeuristic=0.99;
-        runPosHeuristics(value,data,2,prHeuristic);
+        runPosHeuristics(temp,value,data,2,prHeuristic);
+
+        boolean flag = true;
+        if ((i = personVec.indexOf(temp))>=0){
+            x = personVec.get(i);
+            if (!x.bornIn.equals(temp.bornIn)){                                     //compare to see if bornIn years are different
+                if(!x.bornIn.equals("NULL") && temp.bornIn.equals("NULL")){         //if one is NULL copy value from the other
+                    temp.bornIn = x.bornIn;
+                    temp.prBornIn = x.prBornIn;
+                }
+                else if (x.bornIn.equals("NULL") && !temp.bornIn.equals("NULL"))    //if one is NULL copy value from the other
+                {
+                    x.bornIn = temp.bornIn;
+                    x.prBornIn = temp.prBornIn;
+                }
+                else                     //years are different, set flag to indicate a new Person object should be added
+                {
+                    flag = false;
+                }
+            }
+            else
+            {
+                if(!x.bornIn.equals("NULL")){       //if both are not NULL and identical - take the maximal probability
+                    x.prBornIn = temp.prBornIn = Math.max(x.prBornIn,temp.prBornIn);
+                }
+            }
+            if (!x.diedIn.equals(temp.diedIn)){                                     //compare to see if bornIn years are different
+                if(!x.diedIn.equals("NULL") && temp.diedIn.equals("NULL")){         //if one is NULL copy value from the other
+                    temp.diedIn = x.diedIn;
+                    temp.prDiedIn = x.prDiedIn;
+                }
+                else if (x.diedIn.equals("NULL") && !temp.diedIn.equals("NULL"))    //if one is NULL copy value from the other
+                {
+                    x.diedIn = temp.diedIn;
+                    x.prDiedIn = temp.prDiedIn;
+                }
+                else                     //years are different, set flag to indicate a new Person object should be added
+                {
+                    flag = false;
+                }
+            }
+            else
+            {
+                if(!x.diedIn.equals("NULL")){           //if both are not NULL and identical - take the maximal probability
+                    x.prDiedIn = temp.prDiedIn = Math.max(x.prDiedIn,temp.prDiedIn);
+                }
+            }
+            if (!x.profession.equals(temp.profession)){                                      //compare to see if bornIn years are different
+                if(!x.profession.equals("'NULL'") && temp.profession.equals("'NULL'")){         //if one is NULL copy value from the other
+                    temp.profession = x.profession;
+                    temp.prProf = x.prProf;
+                }
+                else if (x.profession.equals("'NULL'") && !temp.profession.equals("'NULL'"))    //if one is NULL copy value from the other
+                {
+                    x.profession = temp.profession;
+                    x.prProf = temp.prProf;
+                }
+                else
+                {
+                    flag = false;
+                }
+            }
+            else
+            {
+                if(!x.profession.equals("'NULL'")){   //if both are not NULL and identical - take the maximal probability
+                    x.prProf = temp.prProf = Math.max(x.prProf,temp.prProf);
+                }
+            }
+            if(flag){           //at least one of the fields has a different value
+                personVec.add(temp);
+            }
+        }
+        else   //the person does not exist yet
+        {
+            personVec.add(temp);
+        }
     }
 
-    public void runPosHeuristics(String name, String lineData,int FLAG, double prHeuristic)
+    public void runPosHeuristics(Person temp, String name, String lineData,int FLAG, double prHeuristic)
     {
         mat.usePattern(matcherVar).reset(lineData);
         data.usePattern(dataVar);
         if (mat.find())         //if a match to the general pattern of name+data is found, extract them
         {
             str= mat.group();
-            pname = name.trim().replaceAll("'", "");
+            pname = name.trim();
             if(!pname.isEmpty()){ //if a name was extracted
                 if(data.reset(str).find(str.indexOf(dataLocation))){
                     switch(FLAG){
                         case(BIRTH_YEAR):{
-                            createPerson1(pname,prHeuristic);
+                            createPerson1(temp,pname,prHeuristic);
                             break;
                         }
                         case(DEATH_YEAR):{
-                            createPerson2(pname,prHeuristic);
+                            createPerson2(temp,pname,prHeuristic);
                             break;
                         }
                         case(PROFESSION):{
                             String[] tempdata = data.group().split("and/CC");   //account for multiple professions for the same person
                             for (String s:tempdata){
                                 pdata=s.replaceAll(dataCleanup,"").trim().toLowerCase();
-                                createPerson3(pname,pdata,prHeuristic);
+                                createPerson3(temp,pname,pdata,prHeuristic);
                             }
                             break;
                         }
@@ -598,7 +687,7 @@ public class TextParser {
         {
             int k = value.indexOf('\n');
             int j = value.indexOf(dataLocation);
-            pname =value.substring(0,k).trim().replaceAll("'", "");
+            pname =value.substring(0,k).trim().replaceAll("'","");
             if(!pname.isEmpty()){
                 if(data.reset(value).find(j)){
                     pdata = data.group().replaceAll(dataCleanup,"").trim();
@@ -622,49 +711,55 @@ public class TextParser {
     }
 
     //helper functions to be used in the heuristics
-    public void createPerson1(String pname, double prHeuristic){
+    public void createPerson1(Person temp, String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
-        p = new Person("'"+pname+"'","'"+pdata+"'",prHeuristic,"NULL",0,"'NULL'",0);
-        if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
-            if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same birth year
-                x.prBornIn = Math.max(x.prBornIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
-            }
-            else{
-                personVec.add(p);
-            }
+        if (temp.bornIn.equals("NULL")){
+            temp.bornIn = pdata;
+            temp.prBornIn = prHeuristic;
+            return;
         }
-        else{
+        else if (temp.bornIn.equals(pdata)){
+            temp.prBornIn = Math.max(temp.prBornIn,prHeuristic);
+            return;
+        }
+        else
+        {
+            p = new Person("'"+pname+"'","'"+pdata+"'",prHeuristic,temp.diedIn,temp.prDiedIn,temp.profession,temp.prProf);
             personVec.add(p);
         }
     }
 
-    public void createPerson2(String pname, double prHeuristic){
+    public void createPerson2(Person temp, String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
-        p = new Person("'"+pname+"'","NULL",0,"'"+pdata+"'",prHeuristic,"'NULL'",0);
-        if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
-            if ((x = personVec.get(i)).diedIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same death year
-                x.prDiedIn = Math.max(x.prDiedIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
-            }
-            else{
-                personVec.add(p);
-            }
+        if (temp.diedIn.equals("NULL")){
+            temp.diedIn = pdata;
+            temp.prDiedIn = prHeuristic;
+            return;
         }
-        else{
+        else if (temp.diedIn.equals(pdata)){
+            temp.prDiedIn = Math.max(temp.prDiedIn,prHeuristic);
+            return;
+        }
+        else
+        {
+            p = new Person("'"+pname+"'",temp.bornIn,temp.prBornIn,"'"+pdata+"'",prHeuristic,temp.profession,temp.prProf);
             personVec.add(p);
         }
     }
 
-    public void createPerson3(String pname, String pdata, double prHeuristic){
-        p = new Person("'"+pname+"'","NULL",0,"NULL",0,"'"+pdata+"'",prHeuristic);
-        if ((i = personVec.indexOf(p))>=0){                                  //check if the person already exists
-            if ((x = personVec.get(i)).profession.equalsIgnoreCase(pdata)){  //if exists, check if he has the same profession
-                x.prProf = Math.max(x.prProf,prHeuristic);                   //if same profession, update the prob. to the maximum of the two
-            }
-            else{
-                personVec.add(p);
-            }
+    public void createPerson3(Person temp, String pname, String pdata, double prHeuristic){
+        if (temp.profession.equals("'NULL'")){
+            temp.profession = pdata;
+            temp.prProf = prHeuristic;
+            return;
         }
-        else{
+        else if (temp.profession.equals(pdata)){
+            temp.prProf = Math.max(temp.prProf,prHeuristic);
+            return;
+        }
+        else
+        {
+            p = new Person("'"+pname+"'",temp.bornIn,temp.prBornIn,temp.diedIn,temp.prDiedIn,"'"+pdata+"'",prHeuristic);
             personVec.add(p);
         }
     }

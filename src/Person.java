@@ -19,6 +19,15 @@ public class Person {
         prProf = probProf;
     }
 
+    public Person(){
+        this.name = "'NULL'";
+        bornIn = "NULL";
+        diedIn = "NULL";
+        profession = "'NULL'";
+        prBornIn = 0;
+        prDiedIn = 0;
+        prProf = 0;
+    }
     //compare Person objects, by comparing their name values
     public boolean equals(Person p){
        return this.name.equals(p.name);
