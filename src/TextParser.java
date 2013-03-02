@@ -50,7 +50,7 @@ public class TextParser {
     //------------------------------------------------------------------------------------------------------------------
     Pattern personPOS = Pattern.compile("([A-Z][a-z]+/NNP\\s){2,}?[^\\.]+?(is/VBZ|was/VBD)\\s(a/DT|an/DT)([^\\.]+?(or|er|ian|ist)/NN)+?(\\sand/CC([^\\.\\n]+?(or|er|ian|ist)/NN)+)*");
     Pattern bornInPOS = Pattern.compile("^([A-Z][a-z]+/NNP\\s){2,}?[^\\.]+[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}/CD");
-    Pattern diedInPOS = Pattern.compile("^([A-Z][a-z]+/NNP\\s){2,}?[^\\.]+[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}/CD[^\\.]+-/:[^\\.]+[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}/CD");
+    Pattern diedInPOS = Pattern.compile("^([A-Z][a-z]+/NNP\\s){2,}?[^\\.\\n]+[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}/CD[^\\.\\n]+(-/:){1}[^\\.\\n]+[^0-9a-zA-Z]{1,2}[1-9][0-9]{2,3}/CD");
     Pattern profPOS = Pattern.compile("([A-Z]{0,1}[a-z]+(or|er|ian|ist)/NN)+?(\\sand/CC\\s([A-Z]{0,1}[a-z ]+(or|er|ian|ist)/NN)+)*");
     Pattern yearPOS = Pattern.compile("[1-9][0-9]{2,3}/CD");
     //==================================================================================================================
@@ -357,7 +357,7 @@ public class TextParser {
     public void extractFullPerson(String value) throws IOException
     {
         /*
-        Each group of variables initialized is the parameters for the specific heuristic run directly after
+        Each group of variables being initialized is the parameters for the specific heuristic run directly after
         @param matcherVar - match specific pattern of name+data
         @param nameVar - match specific type of name pattern
         @param dataVar - match specific type of data (year/profession) to be extracted
@@ -435,36 +435,13 @@ public class TextParser {
                 pname = name.group().substring(name.group().indexOf(nameLocation)).replaceAll(nameCleanup,"").trim(); //extract Person name
                 if(!pname.isEmpty()&&!pname.contains("iography")){
                     if(data.reset(str).find(str.indexOf(dataLocation))){
-                        pdata = data.group().replaceAll(dataCleanup,"");  //extract the data (Birth/Death year, Profession)
                         switch(FLAG){  //FLAG=1 - Birth Year, FLAG=2 - Death Year
                             case(BIRTH_YEAR):{
-                                p = new Person(pname,pdata,prHeuristic,"",0,"",0);
-                                if ((i = personVec.indexOf(p))>=0){                              //if a Person with the same name has been found
-                                    if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){  //if that Person has the same birth year
-                                        x.prBornIn = Math.max(x.prBornIn,prHeuristic);           //update the probability to the Max of the two
-                                    }
-                                    else{
-                                        personVec.add(p);
-                                    }
-                                }
-                                else{
-                                    personVec.add(p);
-                                }
+                                createPerson1(pname,prHeuristic);
                                 break;
                             }
                             case(DEATH_YEAR):{
-                                p = new Person(pname,"",0,pdata,prHeuristic,"",0);
-                                if ((i = personVec.indexOf(p))>=0){                              //if a Person with the same name has been found
-                                    if ((x = personVec.get(i)).diedIn.equalsIgnoreCase(pdata)){  //if that Person has the same death year
-                                        x.prDiedIn = Math.max(x.prDiedIn,prHeuristic);           //update the probability to the Max of the two
-                                    }
-                                    else{
-                                        personVec.add(p);
-                                    }
-                                }
-                                else{
-                                    personVec.add(p);
-                                }
+                                createPerson2(pname,prHeuristic);
                                 break;
                             }
                         }
@@ -489,52 +466,17 @@ public class TextParser {
                 if(data.reset(value).find(j)){
                     switch(FLAG){
                         case(BIRTH_YEAR):{
-                            pdata = data.group().replaceAll(dataCleanup,"");
-                            p = new Person(pname,pdata,prHeuristic,"",0,"",0);
-                            if ((i = personVec.indexOf(p))>=0){
-                                if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){
-                                    x.prBornIn = Math.max(x.prBornIn,prHeuristic);
-                                }
-                                else{
-                                    personVec.add(p);
-                                }
-                            }
-                            else{
-                                personVec.add(p);
-                            }
+                            createPerson1(pname,prHeuristic);
                             break;
                         }
                         case(DEATH_YEAR):{
-                            pdata = data.group().replaceAll(dataCleanup,"");
-                            p = new Person(pname,"",0,pdata,prHeuristic,"",0);
-                            if ((i = personVec.indexOf(p))>=0){
-                                if ((x = personVec.get(i)).diedIn.equalsIgnoreCase(pdata)){
-                                    x.prDiedIn = Math.max(x.prDiedIn,prHeuristic);
-                                }
-                                else{
-                                    personVec.add(p);
-                                }
-                            }
-                            else{
-                                personVec.add(p);
-                            }
+                            createPerson2(pname,prHeuristic);
                             break;
                         }
                         case(PROFESSION):{
                             pdata = data.group().substring(data.group().indexOf("Infobox")+7).replaceAll(dataCleanup,"").toLowerCase().trim();
                             if(!pdata.equalsIgnoreCase("person")&&!pdata.contains("iography")){
-                                p = new Person(pname,"",0,"",0,pdata,prHeuristic);
-                                if ((i = personVec.indexOf(p))>=0){
-                                    if ((x = personVec.get(i)).profession.equalsIgnoreCase(pdata)){
-                                        x.prProf = Math.max(x.prProf,prHeuristic);
-                                    }
-                                    else{
-                                        personVec.add(p);
-                                    }
-                                }
-                                else{
-                                    personVec.add(p);
-                                }
+                                createPerson3(pname,pdata,prHeuristic);
                             }
                             break;
                         }
@@ -554,70 +496,43 @@ public class TextParser {
         @param nameLocation, nameCleanup, dataLocation, dataCleanup - auxiliary parameters for the clean extraction of name/data
         @param prHeuristic - the probability (confidence score) of this specific heuristic, calculated manually on a test-set
         */
-        matcherVar = personPOS ; dataVar = profPOS ; dataLocation = "/DT" ; prHeuristic=0.79;
-        runProfPosHeuristics(value,data,prHeuristic);
+        matcherVar = personPOS ; dataVar = profPOS ; dataLocation = "/DT" ; dataCleanup = "/NN"; prHeuristic=0.79;
+        runPosHeuristics(value,data,3,prHeuristic);
 
-        matcherVar = bornInPOS ; dataVar = yearPOS ; dataLocation = "/NNP" ; dataCleanup = "[^0-9]"; ; prHeuristic=0.96;
-        runYearPosHeuristics(value,data,prHeuristic);
+        matcherVar = bornInPOS ; dataVar = yearPOS ; dataLocation = "/NNP" ; dataCleanup = "[^0-9]"; prHeuristic=0.96;
+        runPosHeuristics(value,data,1,prHeuristic);
 
-        matcherVar = diedInPOS ; dataVar = yearPOS ; dataLocation = "-/:" ; dataCleanup = "[^0-9]"; ; prHeuristic=0.99;
-        runYearPosHeuristics(value,data,prHeuristic);
+        matcherVar = diedInPOS ; dataVar = yearPOS ; dataLocation = "-/:" ; dataCleanup = "[^0-9]"; prHeuristic=0.99;
+        runPosHeuristics(value,data,2,prHeuristic);
     }
 
-    public void runProfPosHeuristics(String name, String lineData, double prHeuristic)
+    public void runPosHeuristics(String name, String lineData,int FLAG, double prHeuristic)
     {
         mat.usePattern(matcherVar).reset(lineData);
         data.usePattern(dataVar);
-
-        if (mat.find())
+        if (mat.find())         //if a match to the general pattern of name+data is found, extract them
         {
             str= mat.group();
             pname = name.trim();
-            if(!pname.isEmpty()){
+            if(!pname.isEmpty()){ //if a name was extracted
                 if(data.reset(str).find(str.indexOf(dataLocation))){
-                    String[] tempdata = data.group().split("and/CC");
-                    for (String s:tempdata){
-                        pdata=s.replaceAll("/NN","").trim();
-                        p = new Person(pname,"",0,"",0,pdata,prHeuristic);
-                        if ((i = personVec.indexOf(p))>=0){
-                            if ((x = personVec.get(i)).profession.equalsIgnoreCase(pdata)){
-                                x.prProf = Math.max(x.prProf,prHeuristic);
+                    switch(FLAG){
+                        case(BIRTH_YEAR):{
+                            createPerson1(pname,prHeuristic);
+                            break;
+                        }
+                        case(DEATH_YEAR):{
+                            createPerson2(pname,prHeuristic);
+                            break;
+                        }
+                        case(PROFESSION):{
+                            String[] tempdata = data.group().split("and/CC");   //account for multiple professions for the same person
+                            for (String s:tempdata){
+                                pdata=s.replaceAll(dataCleanup,"").trim().toLowerCase();
+                                createPerson3(pname,pdata,prHeuristic);
                             }
-                            else{
-                                personVec.add(p);
-                            }
+                            break;
                         }
-                        else{
-                            personVec.add(p);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void runYearPosHeuristics(String name, String lineData, double prHeuristic)
-    {
-        mat.usePattern(matcherVar).reset(lineData);
-        data.usePattern(dataVar);
-        if (mat.find())
-        {
-            str= mat.group();
-            pname = name.trim();
-            if(!pname.isEmpty()){
-                if(data.reset(str).find(str.indexOf(dataLocation))){
-                    pdata=data.group().replaceAll(dataCleanup,"");
-                    p = new Person(pname,pdata,prHeuristic,"",0,"",0);
-                    if ((i = personVec.indexOf(p))>=0){
-                        if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){
-                            x.prBornIn = Math.max(x.prBornIn,prHeuristic);
-                        }
-                        else{
-                            personVec.add(p);
-                        }
-                    }
-                    else{
-                        personVec.add(p);
                     }
                 }
             }
@@ -669,4 +584,51 @@ public class TextParser {
         }
     }
 
+    //helper functions to be used in the heuristics
+    public void createPerson1(String pname, double prHeuristic){
+        pdata = data.group().replaceAll(dataCleanup,"");
+        p = new Person(pname,pdata,prHeuristic,"",0,"",0);
+        if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
+            if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same birth year
+                x.prBornIn = Math.max(x.prBornIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
+            }
+            else{
+                personVec.add(p);
+            }
+        }
+        else{
+            personVec.add(p);
+        }
+    }
+
+    public void createPerson2(String pname, double prHeuristic){
+        pdata = data.group().replaceAll(dataCleanup,"");
+        p = new Person(pname,"",0,pdata,prHeuristic,"",0);
+        if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
+            if ((x = personVec.get(i)).diedIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same death year
+                x.prDiedIn = Math.max(x.prDiedIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
+            }
+            else{
+                personVec.add(p);
+            }
+        }
+        else{
+            personVec.add(p);
+        }
+    }
+
+    public void createPerson3(String pname, String pdata, double prHeuristic){
+        p = new Person(pname,"",0,"",0,pdata,prHeuristic);
+        if ((i = personVec.indexOf(p))>=0){                                  //check if the person already exists
+            if ((x = personVec.get(i)).profession.equalsIgnoreCase(pdata)){  //if exists, check if he has the same profession
+                x.prProf = Math.max(x.prProf,prHeuristic);                   //if same profession, update the prob. to the maximum of the two
+            }
+            else{
+                personVec.add(p);
+            }
+        }
+        else{
+            personVec.add(p);
+        }
+    }
 }
