@@ -57,6 +57,7 @@ public class projectMain {
         
         
         //filling db with our parser vectors
+       	System.out.println("Filling the db with the data found in files");
         db.populateDB();
         
         

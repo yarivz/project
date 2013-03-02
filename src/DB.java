@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.Level;
 
+
 public class DB {
 	
 	TextParser parser;
@@ -66,7 +67,7 @@ public class DB {
                 ans = true;
             }
 
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
             ans=false;
         }
@@ -268,7 +269,7 @@ public class DB {
     {
     	try {
     		System.out.println(query.substring(46));
-   		  ResultSet rs = st.executeQuery("SELECT Musicians.Name, Nationality_probability FROM Musicians JOIN Countries ON Musicians.Origin = Countries.name WHERE Musicians.Origin = '"+query.substring(46)+"' ORDER BY Nationality_probability DESC;");
+   		  	ResultSet rs = st.executeQuery("SELECT Musicians.Name, Nationality_probability FROM Musicians JOIN Countries ON Musicians.Origin = Countries.name WHERE Musicians.Origin = '"+query.substring(46)+"' ORDER BY Nationality_probability DESC;");
 	          while(rs.next())
 	          {
 	        	  System.out.println(rs.getString("Name")+" Probability: "+rs.getDouble("Nationality_probability"));
