@@ -714,7 +714,7 @@ public class TextParser {
     public void createPerson1(Person temp, String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
         if (temp.bornIn.equals("NULL")){
-            temp.bornIn = pdata;
+            temp.bornIn = "'"+pdata+"'";
             temp.prBornIn = prHeuristic;
             return;
         }
@@ -732,7 +732,7 @@ public class TextParser {
     public void createPerson2(Person temp, String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
         if (temp.diedIn.equals("NULL")){
-            temp.diedIn = pdata;
+            temp.diedIn = "'"+pdata+"'";
             temp.prDiedIn = prHeuristic;
             return;
         }
@@ -749,7 +749,7 @@ public class TextParser {
 
     public void createPerson3(Person temp, String pname, String pdata, double prHeuristic){
         if (temp.profession.equals("'NULL'")){
-            temp.profession = pdata;
+            temp.profession = "'"+pdata+"'";
             temp.prProf = prHeuristic;
             return;
         }
