@@ -1,6 +1,5 @@
 import java.io.*;
 import java.sql.SQLException;
-import java.util.Iterator;
 import java.util.Properties;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -80,27 +79,6 @@ public class projectMain {
         } catch (SQLException ex) {
         	projectMain.lgr.log(Level.WARNING, ex.getMessage(), ex);
         }
-
-
-        /*Iterator<Person> itrp = db.parser.personVec.iterator();
-        int k=1;
-        while(itrp.hasNext())
-        {
-            Person p = itrp.next();
-            System.out.println(k+". "+p.name+" "+p.bornIn+" " +p.diedIn+" "+p.profession);
-            k++;
-
-        }
-        
-        Iterator<musicalArtist> itr = db.parser.artistVec.iterator();
-        int r=1;
-        while(itr.hasNext())
-        {
-        	musicalArtist art = itr.next();
-        	System.out.println(r+". "+art.name+" "+art.type+" " +art.nationality+" "+art.genre);
-        	r++;
-        	
-        }*/
     }
 }
 
