@@ -13,7 +13,9 @@
         <jar destfile="run.jar" basedir="build/classes">
             <manifest>
                 <attribute name="Main-Class" value="projectMain"/>
+                <attribute name="Class-Path" value="lib"/>
             </manifest>
+            <zipgroupfileset dir="lib" includes="**/*.jar" />
         </jar>
     </target>
 
