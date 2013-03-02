@@ -587,7 +587,7 @@ public class TextParser {
     //helper functions to be used in the heuristics
     public void createPerson1(String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
-        p = new Person("'"+pname+"'","'"+pdata+"'",prHeuristic,"'NULL'",0,"'NULL'",0);
+        p = new Person("'"+pname+"'","'"+pdata+"'",prHeuristic,"NULL",0,"'NULL'",0);
         if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
             if ((x = personVec.get(i)).bornIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same birth year
                 x.prBornIn = Math.max(x.prBornIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
@@ -603,7 +603,7 @@ public class TextParser {
 
     public void createPerson2(String pname, double prHeuristic){
         pdata = data.group().replaceAll(dataCleanup,"");
-        p = new Person("'"+pname+"'","'NULL'",0,"'"+pdata+"'",prHeuristic,"'NULL'",0);
+        p = new Person("'"+pname+"'","NULL",0,"'"+pdata+"'",prHeuristic,"'NULL'",0);
         if ((i = personVec.indexOf(p))>=0){                                 //check if the person already exists
             if ((x = personVec.get(i)).diedIn.equalsIgnoreCase(pdata)){     //if exists, check if he has the same death year
                 x.prDiedIn = Math.max(x.prDiedIn,prHeuristic);              //if same year, update the prob. to the maximum of the two
@@ -618,7 +618,7 @@ public class TextParser {
     }
 
     public void createPerson3(String pname, String pdata, double prHeuristic){
-        p = new Person("'"+pname+"'","'NULL'",0,"'NULL'",0,"'"+pdata+"'",prHeuristic);
+        p = new Person("'"+pname+"'","NULL",0,"NULL",0,"'"+pdata+"'",prHeuristic);
         if ((i = personVec.indexOf(p))>=0){                                  //check if the person already exists
             if ((x = personVec.get(i)).profession.equalsIgnoreCase(pdata)){  //if exists, check if he has the same profession
                 x.prProf = Math.max(x.prProf,prHeuristic);                   //if same profession, update the prob. to the maximum of the two
