@@ -42,10 +42,12 @@ public class queryScanner{
         while (!query.equals("exit")) 
         {
         	System.out.println("");
-        	System.out.println("Please insert your query");
+        	System.out.println("Please insert your query:");
+        	System.out.println("");
         	Matcher matcher;
             if(scan.hasNextLine())
             {
+            	System.out.println("");
             	query = scan.nextLine();
             	Iterator<Pattern> itr = patVec.iterator();
             	while(itr.hasNext())
@@ -60,7 +62,8 @@ public class queryScanner{
             	}
             	
             }
-           
+            long startTime = System.currentTimeMillis();
+            
             try{
             	switch(scase)
             	{
@@ -95,7 +98,9 @@ public class queryScanner{
             	{
 		        	System.out.println("Problem with the insreted query. Please check your syntax");
 		        }
-            	
+            long endTime   = System.currentTimeMillis();
+
+            System.out.println("Query execution time: "+(endTime - startTime));
         }
         scan.close();
     }

@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
 import java.util.Properties;
-import java.util.logging.Level;
 
 
 public class DB {
@@ -16,7 +15,6 @@ public class DB {
     Statement st = null;
     boolean flag;
 
-    static final String user = "root",password = "fixmixboom4";
     static final String url = "jdbc:mysql://localhost:3306/";
     static final String dbName = "wdm";
     static final String createTablePersons = "CREATE TABLE Persons " +
@@ -54,7 +52,7 @@ public class DB {
     	flag = false;
     }
     
-    public boolean initDB() {
+    public boolean initDB(String user, String password) {
 
         boolean ans = false;
         try {
@@ -68,7 +66,6 @@ public class DB {
             }
 
         } catch (Exception ex) {
-            projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
             ans=false;
         }
         if (ans){
@@ -80,11 +77,9 @@ public class DB {
                         ||st.executeUpdate(createTableMusicians)!=0
                         ||st.executeUpdate(createTableCountries)!=0)
                 {
-                	projectMain.lgr.log(Level.SEVERE,"Could not create some of the tables");
                     ans=false;
                 }
             } catch (SQLException ex) {
-            	projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
                 ans=false;
             }
         }
@@ -121,7 +116,6 @@ public class DB {
 			try {
 	            st.executeUpdate("INSERT INTO Persons VALUES ('0',"+person.name+","+person.bornIn+",'"+person.prBornIn+"',"+person.diedIn+",'"+person.prDiedIn+"',"+person.profession+",'"+person.prProf+"')");
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
              
     	}
@@ -133,7 +127,6 @@ public class DB {
     		 try {
 	            st.executeUpdate("INSERT INTO Musicians VALUES ('0',"+artist.name+","+artist.type+",'"+artist.prType+"',"+artist.nationality+",'"+artist.prNationality+"',"+origin+","+artist.genre+",'"+artist.prGenre+"')");
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
              
     	}
@@ -144,7 +137,6 @@ public class DB {
     		 try {
 	            st.executeUpdate("INSERT INTO Countries VALUES ('0',"+country.name+","+country.population+",'"+country.prPopulation+"')");
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     	}
     }
@@ -163,7 +155,6 @@ public class DB {
 	        	  System.out.println("Unknown");
 	          flag = false;
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     }
     
@@ -180,7 +171,6 @@ public class DB {
 	        	  System.out.println("Unknown");
 	          flag = false;
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     }
     
@@ -197,7 +187,6 @@ public class DB {
 	        	  System.out.println("Unknown");
 	          flag = false;
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     }
     
@@ -208,17 +197,17 @@ public class DB {
    	          while(rs.next())
    	          {
    	        	  if(rs.getString("Type").equals("NULL"))
-   	        		  System.out.print("Type: Unknown");
+   	        		  System.out.println("Type: Unknown");
    	        	  else
-   	        		System.out.print("Type: "+rs.getString("Type"));
+   	        		System.out.println("Type: "+rs.getString("Type"));
    	        	  if(rs.getString("Nationality").equals("NULL"))
- 	        		  System.out.print(" Nationality: Unknown");
+ 	        		  System.out.println(" Nationality: Unknown");
  	        	  else
- 	        		System.out.print(" Nationality: "+rs.getString("Nationality"));
+ 	        		System.out.println(" Nationality: "+rs.getString("Nationality"));
    	        	  if(rs.getString("Genre").equals("NULL"))
- 	        		  System.out.print(" Genre: Unknown");
+ 	        		  System.out.println(" Genre: Unknown");
  	        	  else
- 	        		System.out.print(" Genre: "+rs.getString("Genre"));
+ 	        		System.out.println(" Genre: "+rs.getString("Genre"));
    	        	  System.out.println(" Probability: "+(rs.getDouble("Type_probability")*rs.getDouble("Nationality_probability")*rs.getDouble("Genre_probability")));
    	        	  flag = true;
    	          }
@@ -226,24 +215,22 @@ public class DB {
 	        	  System.out.println("Unknown");
 	          flag = false;
    			} catch (SQLException ex) {
-   				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex); 
    			}
     }
     
     public void query5(String query) throws RuntimeException
     {
     	try {
-     		  ResultSet rs = st.executeQuery("SELECT DISTINCT Name, Population_probability FROM Countries ORDER BY Population DESC LIMIT "+query.substring(query.indexOf('-')+1, query.lastIndexOf('p')-3)+";");
+     		  ResultSet rs = st.executeQuery("SELECT DISTINCT Name, Population, Population_probability FROM Countries ORDER BY Population DESC LIMIT "+query.substring(query.indexOf('-')+1, query.lastIndexOf('p')-3)+";");
   	          while(rs.next())
   	          {
-  	        	  System.out.println(rs.getString("Name")+" Probability: "+rs.getDouble("Population_probability"));
+  	        	  System.out.println(rs.getString("Name")+" Population: "+rs.getInt("Population")+" Probability: "+rs.getDouble("Population_probability"));
   	        	  flag = true;
   	          }
   	          if(!flag)
 	        	  System.out.println("Unknown");
 	          flag = false;
   			} catch (SQLException ex) {
-  				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
   			}
     }
     
@@ -251,24 +238,22 @@ public class DB {
     {
     	try {
     		int decade = Integer.parseInt(query.substring(42, query.lastIndexOf(' ')));
-    		ResultSet rs = st.executeQuery("SELECT Musicians.Name, BornIn_probability FROM Persons JOIN Musicians ON Persons.name = Musicians.name WHERE BornIn BETWEEN "+decade+" AND "+(decade+9)+" ORDER BY BornIn_probability DESC;");
+    		ResultSet rs = st.executeQuery("SELECT Musicians.Name, BornIn, BornIn_probability FROM Persons JOIN Musicians ON Persons.name = Musicians.name WHERE BornIn BETWEEN "+decade+" AND "+(decade+9)+" ORDER BY BornIn_probability DESC;");
 	        while(rs.next())
 	        {
-	        	System.out.println(rs.getString("Name")+" Probability: "+rs.getDouble("BornIn_probability"));
+	        	System.out.println(rs.getString("Name")+" Born In: "+rs.getInt("BornIn")+" Probability: "+rs.getDouble("BornIn_probability"));
 	        	flag = true;
 	        }
 	        if(!flag)
 	        	  System.out.println("Unknown");
 	          flag = false;
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     }
     
     public void query7(String query) throws RuntimeException
     {
     	try {
-    		System.out.println(query.substring(46));
    		  	ResultSet rs = st.executeQuery("SELECT Musicians.Name, Nationality_probability FROM Musicians JOIN Countries ON Musicians.Origin = Countries.name WHERE Musicians.Origin = '"+query.substring(46)+"' ORDER BY Nationality_probability DESC;");
 	          while(rs.next())
 	          {
@@ -279,7 +264,6 @@ public class DB {
 	        	  System.out.println("Unknown");
 	          flag = false;
 			} catch (SQLException ex) {
-				projectMain.lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			}
     }
 }

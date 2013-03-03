@@ -1,14 +1,10 @@
 import java.io.*;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public class projectMain {
 
-    public static Logger lgr = Logger.getLogger("wdm.Logger");
-    static FileHandler fh;
     public static void main(String[] args) throws FileNotFoundException{
     	//loading the country&nationality file
         Properties prop = new Properties();
@@ -19,9 +15,6 @@ public class projectMain {
     		fstream = new FileInputStream("country&nationality.txt");
     		in = new DataInputStream(fstream);
         	prop.load(in);
-        	
-    
-  
         	
 	    	} catch (IOException e){
 	        System.out.println("Could not read file "+"country&nationality.txt");
@@ -36,14 +29,8 @@ public class projectMain {
 			return;
 		}
     	
-        try{
-            fh =  new FileHandler("wdm.log");
-            lgr.addHandler(fh);
-        } catch (IOException ex){
-            System.out.println("could not create log file wdm.log\n");
-        }
         DB db = new DB(new TextParser(args),prop);
-        boolean ret = db.initDB();
+        boolean ret = db.initDB(args[2],args[3]);
         if(ret) System.out.println("The DB and tables were created\n");
         else  System.out.println("something went wrong, please check the log\n");
 
@@ -78,7 +65,6 @@ public class projectMain {
             	qScanner.db.con2.close();
             }
         } catch (SQLException ex) {
-        	projectMain.lgr.log(Level.WARNING, ex.getMessage(), ex);
         }
     }
 }

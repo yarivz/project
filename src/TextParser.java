@@ -403,7 +403,6 @@ public class TextParser {
         */
 
        temp = new Person();
-        if(value.contains("Khan")){
         //Check if the value pattern is an Infobox
         if (value.contains("{{Infobox")||value.contains("{{infobox")){
             matcherVar = bornInInfobox ; dataVar = yearPattern ; nameLocation = "" ; dataLocation = "irth";
@@ -469,7 +468,6 @@ public class TextParser {
         }
         if (!temp.name.equals("'NULL'")){
             personVec.add(temp);
-        }
         }
     }
 
