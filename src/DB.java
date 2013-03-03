@@ -201,14 +201,14 @@ public class DB {
    	        	  else
    	        		System.out.println("Type: "+rs.getString("Type"));
    	        	  if(rs.getString("Nationality").equals("NULL"))
- 	        		  System.out.println(" Nationality: Unknown");
+ 	        		  System.out.println("Nationality: Unknown");
  	        	  else
- 	        		System.out.println(" Nationality: "+rs.getString("Nationality"));
+ 	        		System.out.println("Nationality: "+rs.getString("Nationality"));
    	        	  if(rs.getString("Genre").equals("NULL"))
- 	        		  System.out.println(" Genre: Unknown");
+ 	        		  System.out.println("Genre: Unknown");
  	        	  else
- 	        		System.out.println(" Genre: "+rs.getString("Genre"));
-   	        	  System.out.println(" Probability: "+(rs.getDouble("Type_probability")*rs.getDouble("Nationality_probability")*rs.getDouble("Genre_probability")));
+ 	        		System.out.println("Genre: "+rs.getString("Genre"));
+   	        	  System.out.println("Probability: "+(rs.getDouble("Type_probability")*rs.getDouble("Nationality_probability")*rs.getDouble("Genre_probability")));
    	        	  flag = true;
    	          }
    	          if(!flag)
@@ -224,7 +224,7 @@ public class DB {
      		  ResultSet rs = st.executeQuery("SELECT DISTINCT Name, Population, Population_probability FROM Countries ORDER BY Population DESC LIMIT "+query.substring(query.indexOf('-')+1, query.lastIndexOf('p')-3)+";");
   	          while(rs.next())
   	          {
-  	        	  System.out.println(rs.getString("Name")+" Population: "+rs.getInt("Population")+" Probability: "+rs.getDouble("Population_probability"));
+  	        	  System.out.println(rs.getString("Name")+", Population: "+rs.getInt("Population")+", Probability: "+rs.getDouble("Population_probability"));
   	        	  flag = true;
   	          }
   	          if(!flag)
@@ -241,7 +241,7 @@ public class DB {
     		ResultSet rs = st.executeQuery("SELECT Musicians.Name, BornIn, BornIn_probability FROM Persons JOIN Musicians ON Persons.name = Musicians.name WHERE BornIn BETWEEN "+decade+" AND "+(decade+9)+" ORDER BY BornIn_probability DESC;");
 	        while(rs.next())
 	        {
-	        	System.out.println(rs.getString("Name")+" Born In: "+rs.getInt("BornIn")+" Probability: "+rs.getDouble("BornIn_probability"));
+	        	System.out.println(rs.getString("Name")+", Born In: "+rs.getInt("BornIn")+", Probability: "+rs.getDouble("BornIn_probability"));
 	        	flag = true;
 	        }
 	        if(!flag)

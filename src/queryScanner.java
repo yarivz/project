@@ -100,7 +100,7 @@ public class queryScanner{
 		        }
             long endTime   = System.currentTimeMillis();
 
-            System.out.println("Query execution time: "+(endTime - startTime));
+            System.out.println("Query execution time: "+(endTime - startTime)+"mS");
         }
         scan.close();
     }
